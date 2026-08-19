@@ -3,2708 +3,1848 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>VANTA — Agency Command Center</title>
+<title>VANTERA — Business Operating System</title>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+
 :root{
- --bg:#07080b;
- --panel:#0d1015;
- --panel2:#11151c;
- --line:rgba(255,255,255,.08);
- --text:#f5f7fa;
- --muted:#7e8795;
- --accent:#9cff3b;
- --accent2:#66d8ff;
- --danger:#ff5f6d;
- --warning:#ffc857;
- --shadow:0 25px 80px rgba(0,0,0,.35);
+  --bg:#050609;
+  --panel:#0b0d12;
+  --panel2:#10131a;
+  --line:rgba(255,255,255,.09);
+  --text:#f4f6fb;
+  --muted:#8c93a3;
+  --accent:#8b7cff;
+  --accent2:#39d9ff;
+  --green:#45e6a2;
+  --red:#ff6177;
+  --yellow:#ffd166;
+  --shadow:0 25px 80px rgba(0,0,0,.45);
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{
- font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
- background:
- radial-gradient(circle at 80% 0%,rgba(156,255,59,.07),transparent 25%),
- radial-gradient(circle at 20% 100%,rgba(102,216,255,.05),transparent 25%),
- var(--bg);
- color:var(--text);
- min-height:100vh;
- overflow-x:hidden;
+  background:
+    radial-gradient(circle at 70% 10%,rgba(139,124,255,.12),transparent 30%),
+    radial-gradient(circle at 10% 80%,rgba(57,217,255,.07),transparent 25%),
+    var(--bg);
+  color:var(--text);
+  font-family:Inter,Arial,sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
 }
 
 button,input,select,textarea{font:inherit}
 button{cursor:pointer}
-a{text-decoration:none;color:inherit}
+a{color:inherit;text-decoration:none}
 
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-thumb{background:#252a32;border-radius:10px}
+#boot{
+  position:fixed;
+  inset:0;
+  background:#030407;
+  z-index:99999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  transition:.8s;
+}
+.boot-logo{
+  font-family:"Space Grotesk";
+  font-size:52px;
+  font-weight:800;
+  letter-spacing:-3px;
+}
+.boot-sub{
+  color:var(--muted);
+  font-size:11px;
+  letter-spacing:4px;
+  margin-top:12px;
+}
+.boot-line{
+  width:220px;height:2px;background:#181b24;margin-top:35px;overflow:hidden
+}
+.boot-line i{
+  display:block;width:40%;height:100%;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  animation:boot 1.1s infinite;
+}
+@keyframes boot{from{transform:translateX(-100%)}to{transform:translateX(350%)}}
 
-.app{display:flex;min-height:100vh}
+#webgl{
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  opacity:.7;
+  pointer-events:none;
+}
+#webgl canvas{display:block}
+
+.grid-bg{
+  position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:linear-gradient(to bottom,black,transparent 90%);
+}
+
+.app{display:none;min-height:100vh}
 
 .sidebar{
- width:250px;
- border-right:1px solid var(--line);
- background:rgba(7,8,11,.82);
- backdrop-filter:blur(25px);
- position:fixed;
- inset:0 auto 0 0;
- z-index:20;
- padding:22px 15px;
- display:flex;
- flex-direction:column;
+  position:fixed;
+  left:0;top:0;bottom:0;
+  width:250px;
+  padding:25px 17px;
+  border-right:1px solid var(--line);
+  background:rgba(5,6,9,.75);
+  backdrop-filter:blur(24px);
+  z-index:50;
+  transition:.3s;
 }
-
-.logo{
- display:flex;
- align-items:center;
- gap:11px;
- padding:7px 10px 28px;
+.brand{
+  display:flex;align-items:center;gap:11px;
+  padding:5px 10px 30px;
 }
-
-.logo-mark{
- width:35px;height:35px;
- border-radius:11px;
- background:var(--accent);
- color:#000;
- display:grid;
- place-items:center;
- font-weight:950;
- box-shadow:0 0 30px rgba(156,255,59,.18);
+.brand-mark{
+  width:34px;height:34px;border-radius:11px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:grid;place-items:center;
+  box-shadow:0 0 35px rgba(139,124,255,.35);
 }
-
-.logo-text{
- font-weight:900;
- letter-spacing:.13em;
- font-size:15px;
+.brand-mark:after{
+  content:"V";font-weight:900;color:#050609
 }
-
-.logo small{
- display:block;
- color:var(--muted);
- font-size:8px;
- letter-spacing:.15em;
- margin-top:2px;
+.brand strong{
+  font-family:"Space Grotesk";font-size:20px;letter-spacing:-1px
 }
+.brand span{font-size:8px;color:var(--muted);display:block;letter-spacing:2px}
 
 .nav-label{
- font-size:9px;
- color:#555d68;
- letter-spacing:.18em;
- padding:12px 11px 8px;
+  color:#555c6d;font-size:9px;letter-spacing:2px;
+  padding:15px 11px 8px;text-transform:uppercase
 }
-
 .nav{
- display:flex;
- flex-direction:column;
- gap:3px;
+  display:flex;flex-direction:column;gap:4px
 }
-
 .nav button{
- border:0;
- background:transparent;
- color:#8d95a1;
- padding:11px 12px;
- border-radius:10px;
- display:flex;
- align-items:center;
- gap:11px;
- text-align:left;
- font-size:12px;
- transition:.2s;
- width:100%;
+  border:0;background:transparent;color:#89909f;
+  padding:12px 13px;border-radius:12px;text-align:left;
+  display:flex;align-items:center;gap:12px;transition:.2s;
 }
-
-.nav button:hover,
+.nav button:hover,.nav button.active{
+  background:rgba(255,255,255,.06);color:white
+}
 .nav button.active{
- background:#141920;
- color:#fff;
+  box-shadow:inset 2px 0 var(--accent);
 }
+.nav-icon{width:18px;text-align:center;font-size:15px}
 
-.nav button.active{
- box-shadow:inset 2px 0 var(--accent);
+.sidebar-bottom{
+  position:absolute;bottom:20px;left:17px;right:17px
 }
-
-.nav button i{width:16px;height:16px}
-
-.sidebar-bottom{margin-top:auto}
-
-.system{
- background:#0d1116;
- border:1px solid var(--line);
- padding:12px;
- border-radius:13px;
+.user-card{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.035);
+  border-radius:15px;padding:12px;
+  display:flex;align-items:center;gap:10px
 }
-
-.system-row{
- display:flex;
- justify-content:space-between;
- align-items:center;
- font-size:10px;
- color:var(--muted);
- margin-bottom:8px;
+.avatar{
+  width:32px;height:32px;border-radius:50%;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,#9b8cff,#35cfff);
+  color:#050609;font-weight:800;font-size:11px
 }
-
-.live{
- color:var(--accent);
- display:flex;
- align-items:center;
- gap:5px;
-}
-
-.dot{
- width:6px;height:6px;
- background:var(--accent);
- border-radius:50%;
- box-shadow:0 0 10px var(--accent);
-}
+.user-card small{display:block;color:var(--muted);font-size:9px;margin-top:2px}
 
 .main{
- margin-left:250px;
- width:calc(100% - 250px);
- min-width:0;
+  margin-left:250px;
+  min-height:100vh;
+  position:relative;
 }
 
 .topbar{
- height:70px;
- border-bottom:1px solid var(--line);
- display:flex;
- align-items:center;
- justify-content:space-between;
- padding:0 30px;
- position:sticky;
- top:0;
- z-index:10;
- background:rgba(7,8,11,.72);
- backdrop-filter:blur(20px);
+  height:75px;
+  position:sticky;top:0;z-index:30;
+  border-bottom:1px solid var(--line);
+  background:rgba(5,6,9,.6);
+  backdrop-filter:blur(20px);
+  display:flex;align-items:center;
+  justify-content:space-between;
+  padding:0 35px;
+}
+.page-title h2{
+  font-family:"Space Grotesk";font-size:18px;letter-spacing:-.6px
+}
+.page-title p{font-size:10px;color:var(--muted);margin-top:3px}
+.top-actions{display:flex;align-items:center;gap:9px}
+
+.icon-btn,.search-btn,.primary,.ghost{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.04);
+  color:white;border-radius:10px;
+  min-height:39px;padding:0 13px;
+  transition:.2s;
+}
+.icon-btn:hover,.search-btn:hover,.ghost:hover{
+  background:rgba(255,255,255,.09);transform:translateY(-1px)
+}
+.primary{
+  border:0;
+  background:linear-gradient(135deg,var(--accent),#6659e8);
+  box-shadow:0 8px 25px rgba(112,93,255,.2);
+}
+.primary:hover{transform:translateY(-2px);filter:brightness(1.1)}
+.search-btn{display:flex;gap:9px;align-items:center;color:#8d94a3}
+kbd{
+  border:1px solid var(--line);background:#151821;
+  border-radius:5px;padding:2px 5px;font-size:9px;color:#777e8e
 }
 
-.breadcrumb{
- display:flex;
- align-items:center;
- gap:8px;
- color:var(--muted);
- font-size:11px;
-}
-
-.breadcrumb strong{color:#fff}
-
-.top-actions{
- display:flex;
- align-items:center;
- gap:8px;
-}
-
-.icon-btn,.cmd-btn{
- border:1px solid var(--line);
- background:#0e1217;
- color:#b5bdc9;
- height:36px;
- border-radius:9px;
- display:flex;
- align-items:center;
- justify-content:center;
- transition:.2s;
-}
-
-.icon-btn{width:36px}
-.cmd-btn{padding:0 11px;gap:7px;font-size:10px}
-
-.icon-btn:hover,.cmd-btn:hover{
- border-color:#3a424c;
- color:#fff;
- transform:translateY(-1px);
-}
-
-.avatar{
- width:34px;height:34px;
- border-radius:10px;
- background:linear-gradient(135deg,#d8ffac,#6dff84);
- color:#050606;
- display:grid;
- place-items:center;
- font-size:10px;
- font-weight:900;
-}
-
-.page{
- padding:32px;
- max-width:1700px;
- margin:auto;
-}
+.content{padding:35px;max-width:1600px;margin:auto}
 
 .hero{
- display:flex;
- justify-content:space-between;
- align-items:flex-end;
- gap:20px;
- margin-bottom:28px;
+  min-height:390px;
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  align-items:center;
+  gap:30px;
+  margin-bottom:30px;
 }
-
 .eyebrow{
- font-size:9px;
- letter-spacing:.2em;
- color:var(--accent);
- margin-bottom:10px;
- font-weight:800;
+  display:inline-flex;align-items:center;gap:8px;
+  color:#a9a2ff;font-size:10px;letter-spacing:2px;
+  border:1px solid rgba(139,124,255,.25);
+  padding:7px 10px;border-radius:30px;
+  background:rgba(139,124,255,.07)
 }
-
-h1{
- font-size:clamp(28px,4vw,52px);
- letter-spacing:-.055em;
- line-height:.95;
+.dot{
+  width:6px;height:6px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 15px var(--green)
 }
-
+.hero h1{
+  font-family:"Space Grotesk";
+  font-size:clamp(42px,5vw,76px);
+  line-height:.95;
+  letter-spacing:-5px;
+  max-width:760px;
+  margin:20px 0;
+}
+.gradient{
+  background:linear-gradient(90deg,#fff 20%,#a49bff 55%,#4fdcff);
+  -webkit-background-clip:text;background-clip:text;color:transparent
+}
 .hero p{
- color:var(--muted);
- font-size:12px;
- margin-top:12px;
- max-width:600px;
- line-height:1.7;
+  max-width:600px;color:var(--muted);
+  line-height:1.7;font-size:13px
 }
+.hero-actions{display:flex;gap:10px;margin-top:25px;flex-wrap:wrap}
 
-.primary{
- border:0;
- background:var(--accent);
- color:#050605;
- border-radius:10px;
- padding:12px 16px;
- font-size:11px;
- font-weight:900;
- display:flex;
- gap:8px;
- align-items:center;
- transition:.2s;
+.hero-3d{
+  height:390px;
+  border:1px solid var(--line);
+  border-radius:25px;
+  background:radial-gradient(circle at center,rgba(139,124,255,.08),transparent 60%);
+  position:relative;overflow:hidden;
 }
-
-.primary:hover{
- transform:translateY(-2px);
- box-shadow:0 12px 30px rgba(156,255,59,.15);
+.hero-3d:before{
+  content:"LIVE WEBGL CORE";
+  position:absolute;left:18px;top:17px;
+  color:#656d7d;font-size:8px;letter-spacing:2px;z-index:2
 }
-
-.grid{
- display:grid;
- grid-template-columns:repeat(4,1fr);
- gap:12px;
+.core-info{
+  position:absolute;bottom:18px;left:18px;right:18px;
+  display:flex;justify-content:space-between;z-index:2
 }
+.core-info span{font-size:9px;color:#6f7685}
+.core-info strong{font-size:11px}
 
+.kpis{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;margin-bottom:30px
+}
 .card{
- background:linear-gradient(145deg,rgba(17,21,28,.94),rgba(10,12,16,.94));
- border:1px solid var(--line);
- border-radius:16px;
- box-shadow:var(--shadow);
+  border:1px solid var(--line);
+  background:rgba(12,14,20,.72);
+  backdrop-filter:blur(18px);
+  border-radius:17px;
+  box-shadow:var(--shadow);
 }
-
-.metric{
- padding:19px;
- position:relative;
- overflow:hidden;
+.kpi{padding:20px}
+.kpi-top{display:flex;justify-content:space-between;color:#777f8f;font-size:10px}
+.kpi-icon{
+  width:27px;height:27px;border-radius:8px;
+  background:rgba(139,124,255,.1);display:grid;place-items:center
 }
-
-.metric:after{
- content:"";
- position:absolute;
- width:100px;height:100px;
- right:-40px;bottom:-55px;
- border-radius:50%;
- background:rgba(156,255,59,.04);
+.kpi-value{
+  font-family:"Space Grotesk";font-size:29px;
+  margin:16px 0 5px;letter-spacing:-1px
 }
+.kpi-change{font-size:9px;color:var(--green)}
+.kpi-change.down{color:var(--red)}
 
-.metric-top{
- display:flex;
- justify-content:space-between;
- align-items:center;
- color:var(--muted);
- font-size:10px;
-}
+.grid-2{display:grid;grid-template-columns:1.35fr .65fr;gap:15px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
 
-.metric-icon{
- width:31px;height:31px;
- border-radius:9px;
- background:#151a20;
- display:grid;
- place-items:center;
-}
-
-.metric-icon i{width:15px}
-
-.metric-value{
- margin:20px 0 8px;
- font-size:27px;
- font-weight:850;
- letter-spacing:-.04em;
-}
-
-.metric-bottom{
- display:flex;
- gap:7px;
- font-size:9px;
-}
-
-.up{color:var(--accent)}
-.down{color:var(--danger)}
-
-.content-grid{
- display:grid;
- grid-template-columns:1.65fr 1fr;
- gap:12px;
- margin-top:12px;
-}
-
-.panel{
- padding:20px;
- min-width:0;
-}
-
+.panel{padding:20px;min-height:180px}
 .panel-head{
- display:flex;
- justify-content:space-between;
- align-items:center;
- margin-bottom:18px;
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px
+}
+.panel-head h3{font-size:13px}
+.panel-head span{font-size:9px;color:var(--muted)}
+
+.chart{
+  height:220px;
+  display:flex;align-items:flex-end;gap:12px;
+  padding:20px 5px 0;
+}
+.bar{
+  flex:1;min-width:8px;border-radius:7px 7px 2px 2px;
+  background:linear-gradient(to top,var(--accent),var(--accent2));
+  opacity:.8;transition:.3s;position:relative
+}
+.bar:hover{opacity:1;transform:scaleY(1.03)}
+.bar small{
+  position:absolute;bottom:-18px;left:50%;
+  transform:translateX(-50%);font-size:8px;color:#697080
 }
 
-.panel-title{
- font-size:12px;
- font-weight:800;
-}
-
-.panel-sub{
- color:var(--muted);
- font-size:9px;
- margin-top:4px;
-}
-
-.chart-wrap{height:300px}
-
-.activity{
- display:flex;
- flex-direction:column;
- gap:16px;
-}
-
-.activity-item{
- display:flex;
- gap:11px;
-}
-
+.activity{display:flex;flex-direction:column;gap:15px}
+.activity-item{display:flex;gap:10px;align-items:flex-start}
 .activity-icon{
- flex:0 0 30px;
- height:30px;
- border-radius:9px;
- background:#151a20;
- display:grid;
- place-items:center;
+  width:28px;height:28px;border-radius:9px;
+  background:rgba(255,255,255,.05);display:grid;place-items:center;font-size:11px
 }
+.activity-item strong{font-size:10px;display:block}
+.activity-item small{font-size:8px;color:var(--muted);display:block;margin-top:4px}
 
-.activity-icon i{width:13px}
+.view{display:none;animation:viewIn .35s ease}
+.view.active{display:block}
+@keyframes viewIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
-.activity-content{
- min-width:0;
+.section-head{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:20px
 }
+.section-head h1{font-family:"Space Grotesk";font-size:29px;letter-spacing:-1px}
+.section-head p{color:var(--muted);font-size:11px;margin-top:5px}
 
-.activity-content p{
- font-size:10px;
- line-height:1.5;
- color:#c8ced7;
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:700px}
+th{
+  color:#5f6675;font-size:8px;letter-spacing:1px;
+  text-transform:uppercase;text-align:left;padding:12px;
+  border-bottom:1px solid var(--line)
 }
+td{padding:14px 12px;border-bottom:1px solid rgba(255,255,255,.05);font-size:10px}
+tr:hover td{background:rgba(255,255,255,.02)}
 
-.activity-content span{
- display:block;
- color:#5f6874;
- font-size:8px;
- margin-top:4px;
-}
-
-.section{
- margin-top:12px;
-}
-
-.section-card{
- padding:20px;
-}
-
-.toolbar{
- display:flex;
- gap:8px;
- justify-content:space-between;
- align-items:center;
- margin-bottom:16px;
- flex-wrap:wrap;
-}
-
-.search{
- display:flex;
- align-items:center;
- gap:8px;
- background:#0b0f13;
- border:1px solid var(--line);
- height:36px;
- padding:0 11px;
- border-radius:9px;
- min-width:230px;
-}
-
-.search i{width:14px;color:#68717d}
-
-.search input{
- border:0;
- outline:0;
- background:transparent;
- color:#fff;
- width:100%;
- font-size:10px;
-}
-
-.filter{
- background:#0b0f13;
- border:1px solid var(--line);
- color:#aab2bd;
- height:36px;
- border-radius:9px;
- padding:0 10px;
- font-size:10px;
- outline:0;
-}
-
-.table{
- width:100%;
- border-collapse:collapse;
-}
-
-.table th{
- color:#555e6a;
- font-size:8px;
- text-align:left;
- letter-spacing:.12em;
- padding:11px 10px;
- border-bottom:1px solid var(--line);
-}
-
-.table td{
- padding:14px 10px;
- border-bottom:1px solid rgba(255,255,255,.045);
- font-size:10px;
- color:#c3cad4;
-}
-
-.table tr:hover td{background:rgba(255,255,255,.015)}
-
-.person{
- display:flex;
- align-items:center;
- gap:9px;
-}
-
-.person-avatar{
- width:29px;height:29px;
- border-radius:8px;
- display:grid;
- place-items:center;
- background:#1b2027;
- font-size:9px;
- font-weight:800;
- color:#dce3ec;
-}
-
-.person b{display:block;color:#fff;font-size:10px}
-.person span{font-size:8px;color:#646d79}
-
+.person{display:flex;align-items:center;gap:9px}
+.person .avatar{width:27px;height:27px;font-size:8px}
+.muted{color:var(--muted)}
 .badge{
- display:inline-flex;
- padding:5px 8px;
- border-radius:20px;
- background:#151a20;
- color:#9da6b2;
- font-size:8px;
+  display:inline-flex;padding:5px 8px;border-radius:20px;
+  font-size:8px;background:rgba(255,255,255,.06);color:#bfc4ce
 }
+.badge.green{color:var(--green);background:rgba(69,230,162,.08)}
+.badge.yellow{color:var(--yellow);background:rgba(255,209,102,.08)}
+.badge.red{color:var(--red);background:rgba(255,97,119,.08)}
+.badge.purple{color:#afa7ff;background:rgba(139,124,255,.1)}
 
-.badge.green{color:var(--accent);background:rgba(156,255,59,.07)}
-.badge.blue{color:var(--accent2);background:rgba(102,216,255,.07)}
-.badge.red{color:var(--danger);background:rgba(255,95,109,.07)}
-.badge.yellow{color:var(--warning);background:rgba(255,200,87,.07)}
+.toolbar{display:flex;gap:8px;margin-bottom:15px;flex-wrap:wrap}
+.input{
+  background:#0d1016;border:1px solid var(--line);
+  color:white;border-radius:10px;padding:10px 12px;
+  outline:0;min-width:190px
+}
+.input:focus{border-color:rgba(139,124,255,.55)}
+select.input{appearance:auto}
 
 .pipeline{
- display:grid;
- grid-template-columns:repeat(4,1fr);
- gap:10px;
- overflow-x:auto;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:12px;overflow:auto
 }
-
-.column{
- background:#090c10;
- border:1px solid var(--line);
- border-radius:13px;
- padding:10px;
- min-width:220px;
+.stage{
+  background:rgba(255,255,255,.025);
+  border:1px solid var(--line);border-radius:14px;
+  padding:12px;min-height:300px;min-width:220px
 }
-
-.column-head{
- display:flex;
- justify-content:space-between;
- padding:5px 3px 11px;
- font-size:9px;
- color:#aab2bd;
-}
-
-.column-count{
- background:#171c22;
- padding:3px 6px;
- border-radius:20px;
- font-size:8px;
-}
-
+.stage-title{display:flex;justify-content:space-between;font-size:10px;margin-bottom:12px}
 .deal{
- background:#11151a;
- border:1px solid rgba(255,255,255,.06);
- padding:13px;
- border-radius:11px;
- margin-bottom:8px;
- cursor:grab;
- transition:.2s;
+  border:1px solid var(--line);background:#0b0e14;
+  padding:13px;border-radius:12px;margin-bottom:8px;
+  cursor:pointer;transition:.2s
 }
+.deal:hover{transform:translateY(-2px);border-color:rgba(139,124,255,.35)}
+.deal strong{font-size:10px;display:block}
+.deal small{font-size:8px;color:var(--muted);display:block;margin-top:7px}
 
-.deal:hover{
- border-color:#333b45;
- transform:translateY(-2px);
+.task-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.task{
+  padding:15px;border:1px solid var(--line);
+  border-radius:13px;background:rgba(255,255,255,.025)
 }
-
-.deal.dragging{opacity:.4}
-
-.deal-name{
- font-size:10px;
- font-weight:800;
- margin-bottom:7px;
+.task.done{opacity:.45}
+.task-row{display:flex;gap:10px}
+.check{
+  width:18px;height:18px;border-radius:5px;
+  border:1px solid #343948;background:transparent;
+  color:white;display:grid;place-items:center;flex:none
 }
-
-.deal-company{
- color:#656e79;
- font-size:8px;
- margin-bottom:12px;
-}
-
-.deal-foot{
- display:flex;
- justify-content:space-between;
- align-items:center;
- font-size:8px;
-}
-
-.money{color:var(--accent);font-weight:800}
-
-.project-grid{
- display:grid;
- grid-template-columns:repeat(3,1fr);
- gap:10px;
-}
-
-.project{
- padding:16px;
-}
-
-.project-top{
- display:flex;
- justify-content:space-between;
- align-items:flex-start;
-}
-
-.project h3{
- font-size:11px;
- margin-bottom:5px;
-}
-
-.project p{
- color:#646d78;
- font-size:8px;
-}
-
-.progress{
- height:5px;
- border-radius:10px;
- background:#1a1f25;
- overflow:hidden;
- margin:18px 0 9px;
-}
-
-.progress div{
- height:100%;
- background:var(--accent);
- border-radius:10px;
-}
-
-.progress-meta{
- display:flex;
- justify-content:space-between;
- color:#68717c;
- font-size:8px;
-}
-
-.service-grid{
- display:grid;
- grid-template-columns:repeat(3,1fr);
- gap:10px;
-}
-
-.service{
- padding:20px;
- transition:.2s;
-}
-
-.service:hover{
- transform:translateY(-3px);
- border-color:#303741;
-}
-
-.service-icon{
- width:40px;height:40px;
- background:#151a20;
- border-radius:12px;
- display:grid;
- place-items:center;
- margin-bottom:18px;
-}
-
-.service-icon i{color:var(--accent);width:18px}
-
-.service h3{font-size:12px;margin-bottom:7px}
-.service p{font-size:9px;color:#69727e;line-height:1.6}
-
-.service-price{
- margin-top:18px;
- font-size:18px;
- font-weight:850;
-}
-
-.empty{
- padding:30px;
- text-align:center;
- color:#626b77;
- font-size:10px;
-}
+.check.checked{background:var(--green);border-color:var(--green);color:#06110d}
+.task strong{font-size:10px}
+.task small{font-size:8px;color:var(--muted);display:block;margin-top:7px}
 
 .modal-bg{
- position:fixed;
- inset:0;
- z-index:100;
- background:rgba(0,0,0,.72);
- backdrop-filter:blur(12px);
- display:none;
- align-items:center;
- justify-content:center;
- padding:20px;
+  position:fixed;inset:0;background:rgba(0,0,0,.7);
+  backdrop-filter:blur(12px);z-index:100;
+  display:none;align-items:center;justify-content:center;padding:20px
 }
-
-.modal-bg.show{display:flex}
-
+.modal-bg.open{display:flex}
 .modal{
- width:min(620px,100%);
- max-height:90vh;
- overflow:auto;
- background:#0d1116;
- border:1px solid #293039;
- border-radius:18px;
- box-shadow:0 40px 100px #000;
+  width:min(540px,100%);
+  background:#0b0e14;border:1px solid var(--line);
+  border-radius:20px;box-shadow:0 40px 100px #000;
+  animation:modalIn .25s ease;overflow:hidden
 }
-
+@keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:none}}
 .modal-head{
- display:flex;
- justify-content:space-between;
- align-items:center;
- padding:19px 20px;
- border-bottom:1px solid var(--line);
+  display:flex;justify-content:space-between;align-items:center;
+  padding:18px 20px;border-bottom:1px solid var(--line)
 }
-
-.modal-title{
- font-size:13px;
- font-weight:850;
-}
-
+.modal-head h3{font-size:14px}
 .modal-body{padding:20px}
-
-.form-grid{
- display:grid;
- grid-template-columns:1fr 1fr;
- gap:12px;
-}
-
-.field{margin-bottom:13px}
-
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:7px}
 .field.full{grid-column:1/-1}
-
-.field label{
- display:block;
- font-size:8px;
- color:#747d88;
- margin-bottom:6px;
- text-transform:uppercase;
- letter-spacing:.1em;
-}
-
-.field input,
-.field select,
-.field textarea{
- width:100%;
- border:1px solid var(--line);
- background:#080b0f;
- color:#fff;
- outline:0;
- border-radius:9px;
- padding:10px;
- font-size:10px;
-}
-
-.field textarea{
- min-height:90px;
- resize:vertical;
-}
-
-.modal-foot{
- padding:15px 20px;
- border-top:1px solid var(--line);
- display:flex;
- justify-content:flex-end;
- gap:8px;
-}
-
-.secondary{
- border:1px solid var(--line);
- background:#10151a;
- color:#b4bcc7;
- border-radius:9px;
- padding:10px 14px;
- font-size:10px;
+.field label{font-size:9px;color:#777f8e}
+.field textarea{min-height:100px;resize:vertical}
+.modal-footer{
+  padding:15px 20px;border-top:1px solid var(--line);
+  display:flex;justify-content:flex-end;gap:8px
 }
 
 .toast-wrap{
- position:fixed;
- right:20px;
- bottom:20px;
- z-index:200;
- display:flex;
- flex-direction:column;
- gap:8px;
+  position:fixed;right:20px;bottom:20px;
+  z-index:300;display:flex;flex-direction:column;gap:8px
 }
-
 .toast{
- min-width:250px;
- background:#11161c;
- border:1px solid #2c343d;
- box-shadow:0 20px 60px #000;
- padding:12px 14px;
- border-radius:11px;
- display:flex;
- gap:10px;
- align-items:center;
- animation:toast .3s ease;
+  min-width:250px;padding:13px 15px;
+  background:#11151d;border:1px solid var(--line);
+  border-radius:12px;box-shadow:var(--shadow);
+  font-size:10px;animation:toastIn .25s ease
 }
-
-.toast i{color:var(--accent);width:16px}
-.toast span{font-size:10px;color:#d9dee5}
-
-@keyframes toast{
- from{opacity:0;transform:translateY(15px)}
- to{opacity:1;transform:none}
-}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+.toast b{display:block;margin-bottom:4px}
+.toast small{color:var(--muted)}
 
 .command{
- width:min(580px,100%);
+  position:fixed;inset:0;background:rgba(0,0,0,.65);
+  backdrop-filter:blur(12px);z-index:200;
+  display:none;align-items:flex-start;justify-content:center;padding-top:14vh
 }
-
-.command-search{
- display:flex;
- align-items:center;
- gap:10px;
- padding:15px 17px;
- border-bottom:1px solid var(--line);
+.command.open{display:flex}
+.command-box{
+  width:min(650px,calc(100% - 30px));
+  background:#0b0e14;border:1px solid var(--line);
+  border-radius:17px;overflow:hidden;box-shadow:0 40px 100px #000
 }
-
-.command-search i{width:17px;color:#6e7782}
-
-.command-search input{
- flex:1;
- border:0;
- outline:0;
- background:transparent;
- color:#fff;
- font-size:12px;
+.command-box input{
+  width:100%;padding:18px;border:0;border-bottom:1px solid var(--line);
+  background:transparent;color:white;outline:0
 }
-
-.commands{padding:8px}
-
+.command-list{padding:8px;max-height:350px;overflow:auto}
 .command-item{
- display:flex;
- align-items:center;
- gap:12px;
- padding:11px;
- border-radius:9px;
- color:#aeb6c0;
- font-size:10px;
+  padding:12px;border-radius:9px;font-size:10px;
+  display:flex;justify-content:space-between;color:#b8bec9
 }
+.command-item:hover{background:rgba(255,255,255,.06);color:white}
 
-.command-item:hover{
- background:#171c22;
- color:#fff;
-}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.setting{padding:20px}
+.setting h3{font-size:12px;margin-bottom:7px}
+.setting p{font-size:9px;color:var(--muted);line-height:1.6;margin-bottom:15px}
 
-.command-item i{width:15px}
-
-.shortcut{
- margin-left:auto;
- color:#59616c;
- font-size:8px;
+.empty{
+  padding:50px 20px;text-align:center;color:var(--muted);font-size:10px
 }
 
 .mobile-menu{display:none}
 
-.view{display:none}
-.view.active{display:block}
-
-.mobile-only{display:none}
-
-@media(max-width:1100px){
- .grid{grid-template-columns:repeat(2,1fr)}
- .content-grid{grid-template-columns:1fr}
- .project-grid,.service-grid{grid-template-columns:repeat(2,1fr)}
+@media(max-width:1050px){
+  .hero{grid-template-columns:1fr}
+  .hero-3d{height:330px}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .grid-2{grid-template-columns:1fr}
+  .task-grid{grid-template-columns:repeat(2,1fr)}
 }
-
 @media(max-width:800px){
- .sidebar{
-  transform:translateX(-100%);
-  transition:.25s;
- }
- .sidebar.open{transform:none}
- .main{
-  margin-left:0;
-  width:100%;
- }
- .mobile-menu{display:flex}
- .topbar{padding:0 16px}
- .page{padding:20px 15px}
- .hero{align-items:flex-start;flex-direction:column}
- .grid{grid-template-columns:1fr 1fr}
- .project-grid,.service-grid{grid-template-columns:1fr}
- .table-wrap{overflow:auto}
- .table{min-width:650px}
- .mobile-only{display:block}
+  .sidebar{
+    transform:translateX(-100%);
+    box-shadow:20px 0 60px #000
+  }
+  .sidebar.open{transform:none}
+  .main{margin-left:0}
+  .topbar{padding:0 15px}
+  .content{padding:20px 15px}
+  .mobile-menu{display:grid}
+  .search-btn span{display:none}
+  .top-actions .primary{display:none}
+  .hero h1{font-size:47px;letter-spacing:-3px}
+  .hero{min-height:auto}
+  .hero-3d{height:280px}
+  .kpis{grid-template-columns:1fr 1fr;gap:8px}
+  .kpi{padding:15px}
+  .kpi-value{font-size:23px}
+  .grid-3{grid-template-columns:1fr}
+  .task-grid{grid-template-columns:1fr}
+  .settings-grid{grid-template-columns:1fr}
 }
-
 @media(max-width:500px){
- .grid{grid-template-columns:1fr}
- .form-grid{grid-template-columns:1fr}
- .field.full{grid-column:auto}
- .cmd-btn{display:none}
- h1{font-size:34px}
+  .kpis{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .field.full{grid-column:auto}
 }
 </style>
 </head>
 
 <body>
 
-<div class="app">
+<div id="boot">
+  <div class="boot-logo">VANTERA</div>
+  <div class="boot-sub">BUSINESS OPERATING SYSTEM</div>
+  <div class="boot-line"><i></i></div>
+</div>
+
+<div id="webgl"></div>
+<div class="grid-bg"></div>
+
+<div class="app" id="app">
 
 <aside class="sidebar" id="sidebar">
-
-<div class="logo">
- <div class="logo-mark">V</div>
- <div>
-  <div class="logo-text">VANTA</div>
-  <small>AGENCY COMMAND CENTER</small>
- </div>
-</div>
-
-<div class="nav-label">COMMAND</div>
-
-<div class="nav">
- <button class="active" data-view="dashboard">
-  <i data-lucide="layout-dashboard"></i>Overview
- </button>
- <button data-view="clients">
-  <i data-lucide="users"></i>Clients
- </button>
- <button data-view="projects">
-  <i data-lucide="layers-3"></i>Projects
- </button>
- <button data-view="pipeline">
-  <i data-lucide="kanban"></i>Pipeline
- </button>
- <button data-view="tasks">
-  <i data-lucide="check-square"></i>Tasks
- </button>
- <button data-view="invoices">
-  <i data-lucide="receipt"></i>Invoices
- </button>
-</div>
-
-<div class="nav-label">BUSINESS</div>
-
-<div class="nav">
- <button data-view="services">
-  <i data-lucide="package"></i>Services
- </button>
- <button data-view="analytics">
-  <i data-lucide="chart-no-axes-combined"></i>Analytics
- </button>
- <button data-view="activity">
-  <i data-lucide="activity"></i>Activity
- </button>
-</div>
-
-<div class="nav-label">SYSTEM</div>
-
-<div class="nav">
- <button onclick="exportData()">
-  <i data-lucide="download"></i>Export Data
- </button>
- <button onclick="resetData()">
-  <i data-lucide="refresh-cw"></i>Reset Demo
- </button>
-</div>
-
-<div class="sidebar-bottom">
- <div class="system">
-  <div class="system-row">
-   <span>WORKSPACE</span>
-   <span class="live"><span class="dot"></span>ONLINE</span>
+  <div class="brand">
+    <div class="brand-mark"></div>
+    <div>
+      <strong>VANTERA</strong>
+      <span>BUSINESS OS</span>
+    </div>
   </div>
-  <div style="font-size:11px;font-weight:800">VANTA / MAIN</div>
-  <div style="font-size:8px;color:#626b76;margin-top:4px">Local workspace • encrypted UI</div>
- </div>
-</div>
 
+  <div class="nav-label">Workspace</div>
+  <div class="nav">
+    <button class="active" data-view="dashboard"><span class="nav-icon">⌂</span>Overview</button>
+    <button data-view="clients"><span class="nav-icon">◉</span>Clients</button>
+    <button data-view="projects"><span class="nav-icon">◆</span>Projects</button>
+    <button data-view="leads"><span class="nav-icon">↗</span>Sales Pipeline</button>
+    <button data-view="tasks"><span class="nav-icon">✓</span>Tasks</button>
+    <button data-view="invoices"><span class="nav-icon">◇</span>Invoices</button>
+    <button data-view="proposals"><span class="nav-icon">▤</span>Proposals</button>
+    <button data-view="calendar"><span class="nav-icon">□</span>Calendar</button>
+  </div>
+
+  <div class="nav-label">Intelligence</div>
+  <div class="nav">
+    <button data-view="analytics"><span class="nav-icon">◒</span>Analytics</button>
+    <button data-view="activity"><span class="nav-icon">◎</span>Activity</button>
+    <button data-view="settings"><span class="nav-icon">⚙</span>Settings</button>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="avatar">KZ</div>
+      <div>
+        <b style="font-size:10px">Kyro Studio</b>
+        <small>Administrator</small>
+      </div>
+    </div>
+  </div>
 </aside>
 
 <main class="main">
 
 <header class="topbar">
- <div class="breadcrumb">
-  <button class="icon-btn mobile-menu" onclick="toggleSidebar()">
-   <i data-lucide="menu"></i>
-  </button>
-  <span>VANTA</span>
-  <span>/</span>
-  <strong id="crumb">Overview</strong>
- </div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <button class="icon-btn mobile-menu" id="mobileMenu">☰</button>
+    <div class="page-title">
+      <h2 id="pageTitle">Overview</h2>
+      <p id="pageSub">Your business command center</p>
+    </div>
+  </div>
 
- <div class="top-actions">
-  <button class="cmd-btn" onclick="openCommand()">
-   <i data-lucide="command"></i>
-   Search
-   <span style="color:#535b65">Ctrl K</span>
-  </button>
-
-  <button class="icon-btn" onclick="showToast('No new notifications')">
-   <i data-lucide="bell"></i>
-  </button>
-
-  <button class="icon-btn" onclick="toggleTheme()">
-   <i data-lucide="sun-moon"></i>
-  </button>
-
-  <div class="avatar">KZ</div>
- </div>
+  <div class="top-actions">
+    <button class="search-btn" id="openCommand">⌕ <span>Search anything</span> <kbd>Ctrl K</kbd></button>
+    <button class="icon-btn" id="notifyBtn">◌</button>
+    <button class="icon-btn" id="themeBtn">☼</button>
+    <button class="primary" onclick="openCreate()">+ Create</button>
+  </div>
 </header>
 
-<div class="page">
+<div class="content">
 
 <!-- DASHBOARD -->
+<section class="view active" id="view-dashboard">
 
-<section class="view active" id="dashboard">
+  <div class="hero">
+    <div>
+      <span class="eyebrow"><i class="dot"></i> SYSTEM ONLINE · WEBGL ACTIVE</span>
+      <h1>Run your business.<br><span class="gradient">Not your busywork.</span></h1>
+      <p>
+        VANTERA brings clients, projects, leads, tasks, proposals and revenue
+        into one intelligent business operating system.
+      </p>
+      <div class="hero-actions">
+        <button class="primary" onclick="openCreate()">Launch Workspace →</button>
+        <button class="ghost" onclick="showView('analytics')">View Intelligence</button>
+      </div>
+    </div>
 
-<div class="hero">
- <div>
-  <div class="eyebrow">WEDNESDAY • AUG 19, 2026</div>
-  <h1>Run the business.<br><span style="color:var(--accent)">Not the busywork.</span></h1>
-  <p>
-   Your agency command center for clients, projects, revenue, pipeline and operations.
-   Everything important is visible from one system.
-  </p>
- </div>
-
- <button class="primary" onclick="openQuickCreate()">
-  <i data-lucide="plus"></i>
-  Create
- </button>
-</div>
-
-<div class="grid">
-
-<div class="card metric">
- <div class="metric-top">
-  <span>REVENUE / MONTH</span>
-  <div class="metric-icon"><i data-lucide="trending-up"></i></div>
- </div>
- <div class="metric-value">₹8.42L</div>
- <div class="metric-bottom">
-  <span class="up">+18.4%</span>
-  <span style="color:#555e68">vs last month</span>
- </div>
-</div>
-
-<div class="card metric">
- <div class="metric-top">
-  <span>ACTIVE CLIENTS</span>
-  <div class="metric-icon"><i data-lucide="users"></i></div>
- </div>
- <div class="metric-value" id="clientMetric">24</div>
- <div class="metric-bottom">
-  <span class="up">+4</span>
-  <span style="color:#555e68">this month</span>
- </div>
-</div>
-
-<div class="card metric">
- <div class="metric-top">
-  <span>PIPELINE VALUE</span>
-  <div class="metric-icon"><i data-lucide="funnel"></i></div>
- </div>
- <div class="metric-value">₹31.8L</div>
- <div class="metric-bottom">
-  <span class="up">+12.7%</span>
-  <span style="color:#555e68">weighted</span>
- </div>
-</div>
-
-<div class="card metric">
- <div class="metric-top">
-  <span>PROJECT HEALTH</span>
-  <div class="metric-icon"><i data-lucide="shield-check"></i></div>
- </div>
- <div class="metric-value">94%</div>
- <div class="metric-bottom">
-  <span class="up">Excellent</span>
-  <span style="color:#555e68">all systems</span>
- </div>
-</div>
-
-</div>
-
-<div class="content-grid">
-
-<div class="card panel">
- <div class="panel-head">
-  <div>
-   <div class="panel-title">Revenue intelligence</div>
-   <div class="panel-sub">Monthly performance / INR</div>
-  </div>
-  <span class="badge green">LIVE</span>
- </div>
- <div class="chart-wrap">
-  <canvas id="revenueChart"></canvas>
- </div>
-</div>
-
-<div class="card panel">
- <div class="panel-head">
-  <div>
-   <div class="panel-title">Live activity</div>
-   <div class="panel-sub">Latest workspace events</div>
-  </div>
-  <button class="icon-btn" onclick="setView('activity')">
-   <i data-lucide="arrow-up-right"></i>
-  </button>
- </div>
-
- <div class="activity">
-  <div class="activity-item">
-   <div class="activity-icon"><i data-lucide="circle-dollar-sign"></i></div>
-   <div class="activity-content">
-    <p><b>Nova Labs</b> invoice #INV-2048 marked paid.</p>
-    <span>2 minutes ago</span>
-   </div>
+    <div class="hero-3d" id="hero3d">
+      <div class="core-info">
+        <span>CORE NETWORK / LIVE</span>
+        <strong id="coreStatus">CONNECTED</strong>
+      </div>
+    </div>
   </div>
 
-  <div class="activity-item">
-   <div class="activity-icon"><i data-lucide="user-plus"></i></div>
-   <div class="activity-content">
-    <p><b>Arclight Studio</b> entered the pipeline.</p>
-    <span>18 minutes ago</span>
-   </div>
+  <div class="kpis" id="kpis"></div>
+
+  <div class="grid-2">
+    <div class="card panel">
+      <div class="panel-head">
+        <h3>Revenue Performance</h3>
+        <span>LIVE DATA</span>
+      </div>
+      <div class="chart" id="revenueChart"></div>
+    </div>
+
+    <div class="card panel">
+      <div class="panel-head">
+        <h3>Recent Activity</h3>
+        <span onclick="showView('activity')" style="cursor:pointer">VIEW ALL →</span>
+      </div>
+      <div class="activity" id="activityMini"></div>
+    </div>
   </div>
 
-  <div class="activity-item">
-   <div class="activity-icon"><i data-lucide="check"></i></div>
-   <div class="activity-content">
-    <p><b>Website Launch</b> milestone completed.</p>
-    <span>41 minutes ago</span>
-   </div>
+  <br>
+
+  <div class="grid-3">
+    <div class="card panel">
+      <div class="panel-head"><h3>Lead Conversion</h3><span>THIS MONTH</span></div>
+      <div style="font-family:'Space Grotesk';font-size:38px" id="conversion">68%</div>
+      <div style="height:5px;background:#181c25;border-radius:20px;margin-top:15px">
+        <div id="conversionBar" style="width:68%;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:20px"></div>
+      </div>
+    </div>
+
+    <div class="card panel">
+      <div class="panel-head"><h3>Tasks</h3><span>WORKLOAD</span></div>
+      <div style="font-family:'Space Grotesk';font-size:38px" id="taskPercent">0%</div>
+      <span class="muted" style="font-size:9px">Completion rate</span>
+    </div>
+
+    <div class="card panel">
+      <div class="panel-head"><h3>System Health</h3><span>REALTIME</span></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:20px">
+        <div class="dot"></div>
+        <strong style="font-size:13px">All systems operational</strong>
+      </div>
+    </div>
   </div>
-
-  <div class="activity-item">
-   <div class="activity-icon"><i data-lucide="message-square"></i></div>
-   <div class="activity-content">
-    <p>New client message received from <b>Flux Motors</b>.</p>
-    <span>1 hour ago</span>
-   </div>
-  </div>
- </div>
-</div>
-
-</div>
-
-<div class="card section-card section">
- <div class="panel-head">
-  <div>
-   <div class="panel-title">Priority projects</div>
-   <div class="panel-sub">What needs attention now</div>
-  </div>
-  <button class="secondary" onclick="setView('projects')">View all</button>
- </div>
-
- <div class="project-grid">
-
- <div class="card project">
-  <div class="project-top">
-   <div>
-    <h3>Flux Motors / Digital HQ</h3>
-    <p>Brand + Web Experience</p>
-   </div>
-   <span class="badge green">ON TRACK</span>
-  </div>
-  <div class="progress"><div style="width:82%"></div></div>
-  <div class="progress-meta"><span>82% complete</span><span>4 days</span></div>
- </div>
-
- <div class="card project">
-  <div class="project-top">
-   <div>
-    <h3>Nova Labs / Product OS</h3>
-    <p>UI/UX + Development</p>
-   </div>
-   <span class="badge blue">ACTIVE</span>
-  </div>
-  <div class="progress"><div style="width:64%"></div></div>
-  <div class="progress-meta"><span>64% complete</span><span>11 days</span></div>
- </div>
-
- <div class="card project">
-  <div class="project-top">
-   <div>
-    <h3>Arclight / Campaign</h3>
-    <p>Creative + Performance</p>
-   </div>
-   <span class="badge yellow">REVIEW</span>
-  </div>
-  <div class="progress"><div style="width:48%"></div></div>
-  <div class="progress-meta"><span>48% complete</span><span>8 days</span></div>
- </div>
-
- </div>
-</div>
-
 </section>
-
 
 <!-- CLIENTS -->
+<section class="view" id="view-clients">
+  <div class="section-head">
+    <div><h1>Clients</h1><p>Manage your complete client relationship network.</p></div>
+    <button class="primary" onclick="openCreate('client')">+ Add Client</button>
+  </div>
 
-<section class="view" id="clients">
+  <div class="toolbar">
+    <input class="input" id="clientSearch" placeholder="Search clients..." oninput="renderClients()">
+    <select class="input" id="clientFilter" onchange="renderClients()">
+      <option value="all">All Status</option>
+      <option value="Active">Active</option>
+      <option value="Prospect">Prospect</option>
+      <option value="Paused">Paused</option>
+    </select>
+  </div>
 
-<div class="hero">
- <div>
-  <div class="eyebrow">RELATIONSHIP ENGINE</div>
-  <h1>Clients.</h1>
-  <p>Every relationship, opportunity and account in one command surface.</p>
- </div>
- <button class="primary" onclick="openModal('clientModal')">
-  <i data-lucide="plus"></i>Add client
- </button>
-</div>
-
-<div class="card section-card">
-
-<div class="toolbar">
- <div class="search">
-  <i data-lucide="search"></i>
-  <input id="clientSearch" oninput="renderClients()" placeholder="Search clients...">
- </div>
- <select class="filter" id="clientFilter" onchange="renderClients()">
-  <option value="all">All clients</option>
-  <option value="Active">Active</option>
-  <option value="Lead">Lead</option>
-  <option value="Paused">Paused</option>
- </select>
-</div>
-
-<div class="table-wrap">
-<table class="table">
-<thead>
-<tr>
- <th>CLIENT</th>
- <th>STATUS</th>
- <th>PROJECTS</th>
- <th>VALUE</th>
- <th>LAST CONTACT</th>
- <th></th>
-</tr>
-</thead>
-<tbody id="clientsBody"></tbody>
-</table>
-</div>
-
-</div>
+  <div class="card panel table-wrap">
+    <table>
+      <thead><tr><th>Client</th><th>Company</th><th>Status</th><th>Projects</th><th>Revenue</th><th>Action</th></tr></thead>
+      <tbody id="clientTable"></tbody>
+    </table>
+  </div>
 </section>
-
 
 <!-- PROJECTS -->
+<section class="view" id="view-projects">
+  <div class="section-head">
+    <div><h1>Projects</h1><p>Track delivery, deadlines and project performance.</p></div>
+    <button class="primary" onclick="openCreate('project')">+ New Project</button>
+  </div>
 
-<section class="view" id="projects">
-
-<div class="hero">
- <div>
-  <div class="eyebrow">DELIVERY CONTROL</div>
-  <h1>Projects.</h1>
-  <p>Monitor delivery, deadlines, health and project momentum.</p>
- </div>
- <button class="primary" onclick="openModal('projectModal')">
-  <i data-lucide="plus"></i>New project
- </button>
-</div>
-
-<div class="project-grid" id="projectsGrid"></div>
-
+  <div class="grid-3" id="projectGrid"></div>
 </section>
 
+<!-- LEADS -->
+<section class="view" id="view-leads">
+  <div class="section-head">
+    <div><h1>Sales Pipeline</h1><p>Move opportunities from first contact to closed revenue.</p></div>
+    <button class="primary" onclick="openCreate('lead')">+ New Opportunity</button>
+  </div>
 
-<!-- PIPELINE -->
-
-<section class="view" id="pipeline">
-
-<div class="hero">
- <div>
-  <div class="eyebrow">REVENUE ENGINE</div>
-  <h1>Pipeline.</h1>
-  <p>Drag opportunities between stages and keep your sales machine moving.</p>
- </div>
- <button class="primary" onclick="openModal('dealModal')">
-  <i data-lucide="plus"></i>New opportunity
- </button>
-</div>
-
-<div class="pipeline" id="pipelineBoard"></div>
-
+  <div class="pipeline" id="pipeline"></div>
 </section>
-
 
 <!-- TASKS -->
+<section class="view" id="view-tasks">
+  <div class="section-head">
+    <div><h1>Tasks</h1><p>Keep the entire team focused on what matters.</p></div>
+    <button class="primary" onclick="openCreate('task')">+ Add Task</button>
+  </div>
 
-<section class="view" id="tasks">
+  <div class="toolbar">
+    <select class="input" id="taskFilter" onchange="renderTasks()">
+      <option value="all">All Tasks</option>
+      <option value="open">Open</option>
+      <option value="done">Completed</option>
+      <option value="high">High Priority</option>
+    </select>
+  </div>
 
-<div class="hero">
- <div>
-  <div class="eyebrow">EXECUTION LAYER</div>
-  <h1>Tasks.</h1>
-  <p>Turn strategy into actions and keep the team moving.</p>
- </div>
- <button class="primary" onclick="openModal('taskModal')">
-  <i data-lucide="plus"></i>Add task
- </button>
-</div>
-
-<div class="card section-card">
- <div class="toolbar">
-  <div class="panel-title">Today's execution queue</div>
-  <select class="filter" id="taskFilter" onchange="renderTasks()">
-   <option value="all">All tasks</option>
-   <option value="Open">Open</option>
-   <option value="Done">Done</option>
-  </select>
- </div>
- <div id="tasksList"></div>
-</div>
-
+  <div class="task-grid" id="taskGrid"></div>
 </section>
-
 
 <!-- INVOICES -->
+<section class="view" id="view-invoices">
+  <div class="section-head">
+    <div><h1>Invoices</h1><p>Track billing, collections and cash flow.</p></div>
+    <button class="primary" onclick="openCreate('invoice')">+ Create Invoice</button>
+  </div>
 
-<section class="view" id="invoices">
-
-<div class="hero">
- <div>
-  <div class="eyebrow">FINANCE CONTROL</div>
-  <h1>Invoices.</h1>
-  <p>Track billing, collections and outstanding revenue.</p>
- </div>
- <button class="primary" onclick="openModal('invoiceModal')">
-  <i data-lucide="plus"></i>Create invoice
- </button>
-</div>
-
-<div class="card section-card">
- <div class="table-wrap">
- <table class="table">
- <thead>
- <tr>
-  <th>INVOICE</th>
-  <th>CLIENT</th>
-  <th>DATE</th>
-  <th>AMOUNT</th>
-  <th>STATUS</th>
-  <th>ACTION</th>
- </tr>
- </thead>
- <tbody id="invoiceBody"></tbody>
- </table>
- </div>
-</div>
-
+  <div class="card panel table-wrap">
+    <table>
+      <thead><tr><th>Invoice</th><th>Client</th><th>Amount</th><th>Due</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody id="invoiceTable"></tbody>
+    </table>
+  </div>
 </section>
 
-
-<!-- SERVICES -->
-
-<section class="view" id="services">
-
-<div class="hero">
- <div>
-  <div class="eyebrow">OFFERING CATALOG</div>
-  <h1>Services.</h1>
-  <p>Your agency's products, packaged for clarity and scale.</p>
- </div>
-</div>
-
-<div class="service-grid">
-
-<div class="card service">
- <div class="service-icon"><i data-lucide="globe"></i></div>
- <h3>Digital Experiences</h3>
- <p>Premium websites, product interfaces and immersive digital experiences.</p>
- <div class="service-price">₹75K+</div>
- </div>
-
-<div class="card service">
- <div class="service-icon"><i data-lucide="palette"></i></div>
- <h3>Brand Systems</h3>
- <p>Identity systems, visual direction, guidelines and launch assets.</p>
- <div class="service-price">₹45K+</div>
- </div>
-
-<div class="card service">
- <div class="service-icon"><i data-lucide="megaphone"></i></div>
- <h3>Growth Engine</h3>
- <p>Campaign strategy, content systems and performance optimization.</p>
- <div class="service-price">₹60K+</div>
- </div>
-
-<div class="card service">
- <div class="service-icon"><i data-lucide="bot"></i></div>
- <h3>AI Automation</h3>
- <p>Automate repetitive operations, workflows and customer interactions.</p>
- <div class="service-price">₹90K+</div>
- </div>
-
-<div class="card service">
- <div class="service-icon"><i data-lucide="box"></i></div>
- <h3>Product Design</h3>
- <p>End-to-end product UX from research through high-fidelity prototypes.</p>
- <div class="service-price">₹80K+</div>
- </div>
-
-<div class="card service">
- <div class="service-icon"><i data-lucide="rocket"></i></div>
- <h3>Launch Systems</h3>
- <p>Positioning, launch strategy, creative production and deployment.</p>
- <div class="service-price">₹1.2L+</div>
- </div>
-
-</div>
-
+<!-- PROPOSALS -->
+<section class="view" id="view-proposals">
+  <div class="section-head">
+    <div><h1>Proposals</h1><p>Create and manage high-value opportunities.</p></div>
+    <button class="primary" onclick="openCreate('proposal')">+ New Proposal</button>
+  </div>
+  <div class="grid-3" id="proposalGrid"></div>
 </section>
 
+<!-- CALENDAR -->
+<section class="view" id="view-calendar">
+  <div class="section-head">
+    <div><h1>Calendar</h1><p>Meetings, deadlines and important events.</p></div>
+    <button class="primary" onclick="openCreate('event')">+ Add Event</button>
+  </div>
+  <div class="card panel">
+    <div id="calendarList"></div>
+  </div>
+</section>
 
 <!-- ANALYTICS -->
-
-<section class="view" id="analytics">
-
-<div class="hero">
- <div>
-  <div class="eyebrow">BUSINESS INTELLIGENCE</div>
-  <h1>Analytics.</h1>
-  <p>See what is growing, what is leaking and where the next opportunity lives.</p>
- </div>
-</div>
-
-<div class="grid">
- <div class="card metric">
-  <div class="metric-top"><span>WIN RATE</span><div class="metric-icon"><i data-lucide="target"></i></div></div>
-  <div class="metric-value">68%</div>
-  <div class="metric-bottom"><span class="up">+9.2%</span></div>
- </div>
- <div class="card metric">
-  <div class="metric-top"><span>AVG DEAL</span><div class="metric-icon"><i data-lucide="badge-dollar-sign"></i></div></div>
-  <div class="metric-value">₹2.4L</div>
-  <div class="metric-bottom"><span class="up">+14.8%</span></div>
- </div>
- <div class="card metric">
-  <div class="metric-top"><span>RETENTION</span><div class="metric-icon"><i data-lucide="repeat-2"></i></div></div>
-  <div class="metric-value">91%</div>
-  <div class="metric-bottom"><span class="up">+3.4%</span></div>
- </div>
- <div class="card metric">
-  <div class="metric-top"><span>UTILIZATION</span><div class="metric-icon"><i data-lucide="gauge"></i></div></div>
-  <div class="metric-value">83%</div>
-  <div class="metric-bottom"><span class="up">Healthy</span></div>
- </div>
-</div>
-
-<div class="content-grid">
- <div class="card panel">
-  <div class="panel-head">
-   <div>
-    <div class="panel-title">Revenue trajectory</div>
-    <div class="panel-sub">Actual vs projected</div>
-   </div>
+<section class="view" id="view-analytics">
+  <div class="section-head">
+    <div><h1>Business Intelligence</h1><p>See the signals behind your business.</p></div>
+    <button class="ghost" onclick="exportData()">Export Data</button>
   </div>
-  <div class="chart-wrap"><canvas id="analyticsChart"></canvas></div>
- </div>
 
- <div class="card panel">
-  <div class="panel-head">
-   <div>
-    <div class="panel-title">Acquisition channels</div>
-    <div class="panel-sub">Lead contribution</div>
-   </div>
-  </div>
-  <div class="activity">
-   <div>
-    <div style="display:flex;justify-content:space-between;font-size:9px;margin-bottom:6px">
-     <span>Instagram</span><b>42%</b>
-    </div>
-    <div class="progress"><div style="width:42%"></div></div>
-   </div>
-   <div>
-    <div style="display:flex;justify-content:space-between;font-size:9px;margin-bottom:6px">
-     <span>Referrals</span><b>28%</b>
-    </div>
-    <div class="progress"><div style="width:28%"></div></div>
-   </div>
-   <div>
-    <div style="display:flex;justify-content:space-between;font-size:9px;margin-bottom:6px">
-     <span>Website</span><b>18%</b>
-    </div>
-    <div class="progress"><div style="width:18%"></div></div>
-   </div>
-   <div>
-    <div style="display:flex;justify-content:space-between;font-size:9px;margin-bottom:6px">
-     <span>Other</span><b>12%</b>
-    </div>
-    <div class="progress"><div style="width:12%"></div></div>
-   </div>
-  </div>
- </div>
-</div>
+  <div class="kpis" id="analyticsKpis"></div>
 
+  <div class="grid-2">
+    <div class="card panel">
+      <div class="panel-head"><h3>Revenue Intelligence</h3><span>12 MONTHS</span></div>
+      <div class="chart" id="analyticsChart"></div>
+    </div>
+    <div class="card panel">
+      <div class="panel-head"><h3>Business Health</h3><span>LIVE</span></div>
+      <div id="healthList"></div>
+    </div>
+  </div>
 </section>
 
-
 <!-- ACTIVITY -->
+<section class="view" id="view-activity">
+  <div class="section-head">
+    <div><h1>Activity</h1><p>Everything happening across your workspace.</p></div>
+    <button class="ghost" onclick="clearActivity()">Clear Activity</button>
+  </div>
+  <div class="card panel">
+    <div class="activity" id="activityFull"></div>
+  </div>
+</section>
 
-<section class="view" id="activity">
+<!-- SETTINGS -->
+<section class="view" id="view-settings">
+  <div class="section-head">
+    <div><h1>Settings</h1><p>Configure your VANTERA workspace.</p></div>
+  </div>
 
-<div class="hero">
- <div>
-  <div class="eyebrow">AUDIT STREAM</div>
-  <h1>Activity.</h1>
-  <p>Everything happening across your workspace.</p>
- </div>
-</div>
+  <div class="settings-grid">
+    <div class="card setting">
+      <h3>Workspace</h3>
+      <p>Control the basic identity of your agency workspace.</p>
+      <input class="input" value="Kyro Studio" id="workspaceName">
+    </div>
 
-<div class="card section-card">
- <div class="activity" id="activityFull"></div>
-</div>
+    <div class="card setting">
+      <h3>Appearance</h3>
+      <p>Switch the visual experience of your workspace.</p>
+      <button class="ghost" onclick="toggleTheme()">Toggle Interface Theme</button>
+    </div>
 
+    <div class="card setting">
+      <h3>Data Management</h3>
+      <p>Export your current workspace or reset the demo environment.</p>
+      <div style="display:flex;gap:8px">
+        <button class="ghost" onclick="exportData()">Export JSON</button>
+        <button class="ghost" onclick="resetDemo()">Reset Demo</button>
+      </div>
+    </div>
+
+    <div class="card setting">
+      <h3>Keyboard Control</h3>
+      <p>Use the command center to navigate VANTERA instantly.</p>
+      <kbd style="font-size:10px">CTRL</kbd> + <kbd style="font-size:10px">K</kbd>
+    </div>
+  </div>
 </section>
 
 </div>
 </main>
 </div>
 
-
-<!-- CLIENT MODAL -->
-
-<div class="modal-bg" id="clientModal">
-<div class="modal">
- <div class="modal-head">
-  <div class="modal-title">Create client</div>
-  <button class="icon-btn" onclick="closeModal('clientModal')"><i data-lucide="x"></i></button>
- </div>
- <div class="modal-body">
-  <div class="form-grid">
-   <div class="field">
-    <label>Client name</label>
-    <input id="newClientName" placeholder="e.g. Apex Labs">
-   </div>
-   <div class="field">
-    <label>Company</label>
-    <input id="newClientCompany" placeholder="Company">
-   </div>
-   <div class="field">
-    <label>Status</label>
-    <select id="newClientStatus">
-     <option>Lead</option>
-     <option>Active</option>
-     <option>Paused</option>
-    </select>
-   </div>
-   <div class="field">
-    <label>Value</label>
-    <input id="newClientValue" type="number" placeholder="100000">
-   </div>
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle">Create</h3>
+      <button class="icon-btn" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="ghost" onclick="closeModal()">Cancel</button>
+      <button class="primary" id="modalSave">Create</button>
+    </div>
   </div>
- </div>
- <div class="modal-foot">
-  <button class="secondary" onclick="closeModal('clientModal')">Cancel</button>
-  <button class="primary" onclick="createClient()">Create client</button>
- </div>
-</div>
 </div>
 
-
-<!-- PROJECT MODAL -->
-
-<div class="modal-bg" id="projectModal">
-<div class="modal">
- <div class="modal-head">
-  <div class="modal-title">Create project</div>
-  <button class="icon-btn" onclick="closeModal('projectModal')"><i data-lucide="x"></i></button>
- </div>
- <div class="modal-body">
-  <div class="form-grid">
-   <div class="field">
-    <label>Project name</label>
-    <input id="newProjectName" placeholder="Website redesign">
-   </div>
-   <div class="field">
-    <label>Client</label>
-    <input id="newProjectClient" placeholder="Client">
-   </div>
-   <div class="field">
-    <label>Progress</label>
-    <input id="newProjectProgress" type="number" min="0" max="100" value="10">
-   </div>
-   <div class="field">
-    <label>Status</label>
-    <select id="newProjectStatus">
-     <option>ACTIVE</option>
-     <option>ON TRACK</option>
-     <option>REVIEW</option>
-     <option>PAUSED</option>
-    </select>
-   </div>
+<!-- COMMAND -->
+<div class="command" id="command">
+  <div class="command-box">
+    <input id="commandInput" placeholder="Type a command or search..." autocomplete="off">
+    <div class="command-list" id="commandList"></div>
   </div>
- </div>
- <div class="modal-foot">
-  <button class="secondary" onclick="closeModal('projectModal')">Cancel</button>
-  <button class="primary" onclick="createProject()">Create project</button>
- </div>
 </div>
-</div>
-
-
-<!-- DEAL MODAL -->
-
-<div class="modal-bg" id="dealModal">
-<div class="modal">
- <div class="modal-head">
-  <div class="modal-title">New opportunity</div>
-  <button class="icon-btn" onclick="closeModal('dealModal')"><i data-lucide="x"></i></button>
- </div>
- <div class="modal-body">
-  <div class="form-grid">
-   <div class="field">
-    <label>Opportunity</label>
-    <input id="newDealName" placeholder="Enterprise website">
-   </div>
-   <div class="field">
-    <label>Company</label>
-    <input id="newDealCompany" placeholder="Company">
-   </div>
-   <div class="field">
-    <label>Value</label>
-    <input id="newDealValue" type="number" placeholder="250000">
-   </div>
-   <div class="field">
-    <label>Stage</label>
-    <select id="newDealStage">
-     <option>LEAD</option>
-     <option>QUALIFIED</option>
-     <option>PROPOSAL</option>
-     <option>WON</option>
-    </select>
-   </div>
-  </div>
- </div>
- <div class="modal-foot">
-  <button class="secondary" onclick="closeModal('dealModal')">Cancel</button>
-  <button class="primary" onclick="createDeal()">Add opportunity</button>
- </div>
-</div>
-</div>
-
-
-<!-- TASK MODAL -->
-
-<div class="modal-bg" id="taskModal">
-<div class="modal">
- <div class="modal-head">
-  <div class="modal-title">Add task</div>
-  <button class="icon-btn" onclick="closeModal('taskModal')"><i data-lucide="x"></i></button>
- </div>
- <div class="modal-body">
-  <div class="field">
-   <label>Task</label>
-   <input id="newTaskName" placeholder="Prepare proposal">
-  </div>
-  <div class="form-grid">
-   <div class="field">
-    <label>Priority</label>
-    <select id="newTaskPriority">
-     <option>High</option>
-     <option>Medium</option>
-     <option>Low</option>
-    </select>
-   </div>
-   <div class="field">
-    <label>Due</label>
-    <input id="newTaskDue" type="date">
-   </div>
-  </div>
- </div>
- <div class="modal-foot">
-  <button class="secondary" onclick="closeModal('taskModal')">Cancel</button>
-  <button class="primary" onclick="createTask()">Add task</button>
- </div>
-</div>
-</div>
-
-
-<!-- INVOICE MODAL -->
-
-<div class="modal-bg" id="invoiceModal">
-<div class="modal">
- <div class="modal-head">
-  <div class="modal-title">Create invoice</div>
-  <button class="icon-btn" onclick="closeModal('invoiceModal')"><i data-lucide="x"></i></button>
- </div>
- <div class="modal-body">
-  <div class="form-grid">
-   <div class="field">
-    <label>Client</label>
-    <input id="newInvoiceClient" placeholder="Client">
-   </div>
-   <div class="field">
-    <label>Amount</label>
-    <input id="newInvoiceAmount" type="number" placeholder="150000">
-   </div>
-   <div class="field">
-    <label>Status</label>
-    <select id="newInvoiceStatus">
-     <option>Pending</option>
-     <option>Paid</option>
-     <option>Overdue</option>
-    </select>
-   </div>
-   <div class="field">
-    <label>Date</label>
-    <input id="newInvoiceDate" type="date">
-   </div>
-  </div>
- </div>
- <div class="modal-foot">
-  <button class="secondary" onclick="closeModal('invoiceModal')">Cancel</button>
-  <button class="primary" onclick="createInvoice()">Create invoice</button>
- </div>
-</div>
-</div>
-
-
-<!-- QUICK CREATE -->
-
-<div class="modal-bg" id="quickModal">
-<div class="modal">
- <div class="modal-head">
-  <div class="modal-title">Quick create</div>
-  <button class="icon-btn" onclick="closeModal('quickModal')"><i data-lucide="x"></i></button>
- </div>
- <div class="modal-body">
-
-  <div class="commands">
-
-   <div class="command-item" onclick="closeModal('quickModal');openModal('clientModal')">
-    <i data-lucide="user-plus"></i>
-    New client
-   </div>
-
-   <div class="command-item" onclick="closeModal('quickModal');openModal('projectModal')">
-    <i data-lucide="layers-3"></i>
-    New project
-   </div>
-
-   <div class="command-item" onclick="closeModal('quickModal');openModal('dealModal')">
-    <i data-lucide="funnel"></i>
-    New opportunity
-   </div>
-
-   <div class="command-item" onclick="closeModal('quickModal');openModal('taskModal')">
-    <i data-lucide="check-square"></i>
-    New task
-   </div>
-
-   <div class="command-item" onclick="closeModal('quickModal');openModal('invoiceModal')">
-    <i data-lucide="receipt"></i>
-    New invoice
-   </div>
-
-  </div>
-
- </div>
-</div>
-</div>
-
-
-<!-- COMMAND PALETTE -->
-
-<div class="modal-bg" id="commandModal" onclick="if(event.target===this)closeModal('commandModal')">
-<div class="modal command">
-
- <div class="command-search">
-  <i data-lucide="search"></i>
-  <input id="commandInput" placeholder="Search commands..." oninput="filterCommands()">
- </div>
-
- <div class="commands" id="commandList">
-
-  <div class="command-item" data-command="overview" onclick="commandGo('dashboard')">
-   <i data-lucide="layout-dashboard"></i>
-   Open overview
-   <span class="shortcut">↵</span>
-  </div>
-
-  <div class="command-item" data-command="clients" onclick="commandGo('clients')">
-   <i data-lucide="users"></i>
-   Open clients
-  </div>
-
-  <div class="command-item" data-command="projects" onclick="commandGo('projects')">
-   <i data-lucide="layers-3"></i>
-   Open projects
-  </div>
-
-  <div class="command-item" data-command="pipeline" onclick="commandGo('pipeline')">
-   <i data-lucide="kanban"></i>
-   Open pipeline
-  </div>
-
-  <div class="command-item" data-command="tasks" onclick="commandGo('tasks')">
-   <i data-lucide="check-square"></i>
-   Open tasks
-  </div>
-
-  <div class="command-item" data-command="invoice" onclick="commandGo('invoices')">
-   <i data-lucide="receipt"></i>
-   Open invoices
-  </div>
-
-  <div class="command-item" data-command="create" onclick="closeModal('commandModal');openQuickCreate()">
-   <i data-lucide="plus"></i>
-   Quick create
-  </div>
-
-  <div class="command-item" data-command="export" onclick="closeModal('commandModal');exportData()">
-   <i data-lucide="download"></i>
-   Export workspace
-  </div>
-
- </div>
-</div>
-</div>
-
 
 <div class="toast-wrap" id="toastWrap"></div>
 
-
 <script>
-
-lucide.createIcons();
-
-/* -----------------------------
-   STORAGE
------------------------------ */
+/* =========================================================
+   VANTERA BUSINESS OS
+   FRONTEND ENGINE
+========================================================= */
 
 const defaultData = {
- clients:[
-  {id:1,name:"Aarav Mehta",company:"Nova Labs",status:"Active",projects:3,value:480000,last:"Today"},
-  {id:2,name:"Riya Kapoor",company:"Flux Motors",status:"Active",projects:2,value:620000,last:"Yesterday"},
-  {id:3,name:"Kabir Shah",company:"Arclight Studio",status:"Lead",projects:0,value:180000,last:"2 days ago"},
-  {id:4,name:"Maya Singh",company:"Orbit Systems",status:"Paused",projects:1,value:240000,last:"Aug 14"},
-  {id:5,name:"Dev Malhotra",company:"Vertex Labs",status:"Active",projects:4,value:810000,last:"Aug 18"}
- ],
-
- projects:[
-  {id:1,name:"Flux Motors / Digital HQ",client:"Flux Motors",type:"Brand + Web Experience",progress:82,status:"ON TRACK",days:"4 days"},
-  {id:2,name:"Nova Labs / Product OS",client:"Nova Labs",type:"UI/UX + Development",progress:64,status:"ACTIVE",days:"11 days"},
-  {id:3,name:"Arclight / Campaign",client:"Arclight Studio",type:"Creative + Performance",progress:48,status:"REVIEW",days:"8 days"},
-  {id:4,name:"Vertex / Brand System",client:"Vertex Labs",type:"Identity + Strategy",progress:31,status:"ACTIVE",days:"21 days"}
- ],
-
- deals:[
-  {id:1,name:"Enterprise Website",company:"Apex",value:450000,stage:"LEAD"},
-  {id:2,name:"Product Redesign",company:"Northstar",value:280000,stage:"QUALIFIED"},
-  {id:3,name:"Brand Transformation",company:"Vela",value:620000,stage:"PROPOSAL"},
-  {id:4,name:"AI Automation Suite",company:"Nova Labs",value:840000,stage:"WON"},
-  {id:5,name:"Growth Retainer",company:"Flux",value:350000,stage:"PROPOSAL"},
-  {id:6,name:"Digital Launch",company:"Orbit",value:190000,stage:"QUALIFIED"}
- ],
-
- tasks:[
-  {id:1,name:"Send Flux Motors proposal",priority:"High",due:"Today",status:"Open"},
-  {id:2,name:"Review Nova Labs prototype",priority:"High",due:"Today",status:"Open"},
-  {id:3,name:"Publish Arclight campaign",priority:"Medium",due:"Tomorrow",status:"Open"},
-  {id:4,name:"Update case study",priority:"Low",due:"Aug 21",status:"Done"}
- ],
-
- invoices:[
-  {id:2048,client:"Nova Labs",date:"Aug 19, 2026",amount:280000,status:"Paid"},
-  {id:2047,client:"Flux Motors",date:"Aug 17, 2026",amount:420000,status:"Pending"},
-  {id:2046,client:"Vertex Labs",date:"Aug 12, 2026",amount:180000,status:"Overdue"},
-  {id:2045,client:"Arclight Studio",date:"Aug 08, 2026",amount:95000,status:"Paid"}
- ],
-
- activity:[
-  ["circle-dollar-sign","Nova Labs invoice #INV-2048 marked paid.","2 minutes ago"],
-  ["user-plus","Arclight Studio entered the pipeline.","18 minutes ago"],
-  ["check","Website Launch milestone completed.","41 minutes ago"],
-  ["message-square","New client message received from Flux Motors.","1 hour ago"],
-  ["file-plus","New project created for Vertex Labs.","2 hours ago"],
-  ["target","Proposal sent to Northstar.","3 hours ago"]
- ]
+  clients:[
+    {id:1,name:"Arjun Mehta",company:"Apex Labs",status:"Active",projects:3,revenue:18400},
+    {id:2,name:"Sarah Chen",company:"Northstar",status:"Active",projects:2,revenue:12600},
+    {id:3,name:"Rohan Kapoor",company:"Orbit Media",status:"Prospect",projects:0,revenue:0},
+    {id:4,name:"Maya Singh",company:"Lumina",status:"Paused",projects:1,revenue:5400}
+  ],
+  projects:[
+    {id:1,name:"Apex Rebrand",client:"Apex Labs",progress:82,status:"On Track",value:8200},
+    {id:2,name:"Northstar Platform",client:"Northstar",progress:64,status:"In Progress",value:12500},
+    {id:3,name:"Orbit Campaign",client:"Orbit Media",progress:31,status:"At Risk",value:6800}
+  ],
+  leads:[
+    {id:1,name:"Quantum Systems",value:18000,stage:"New",prob:20},
+    {id:2,name:"Nova Commerce",value:12500,stage:"Contacted",prob:40},
+    {id:3,name:"Vertex AI",value:28000,stage:"Proposal",prob:70},
+    {id:4,name:"Atlas Group",value:34000,stage:"Negotiation",prob:85}
+  ],
+  tasks:[
+    {id:1,title:"Finalize brand system",project:"Apex Rebrand",priority:"High",due:"Today",done:false},
+    {id:2,title:"Review landing page",project:"Northstar Platform",priority:"Medium",due:"Tomorrow",done:false},
+    {id:3,title:"Send proposal",project:"Vertex AI",priority:"High",due:"Today",done:true},
+    {id:4,title:"Prepare client report",project:"Orbit Campaign",priority:"Low",due:"Friday",done:false}
+  ],
+  invoices:[
+    {id:"INV-1048",client:"Apex Labs",amount:8200,due:"Aug 22, 2026",status:"Pending"},
+    {id:"INV-1047",client:"Northstar",amount:12600,due:"Aug 18, 2026",status:"Overdue"},
+    {id:"INV-1046",client:"Lumina",amount:5400,due:"Aug 11, 2026",status:"Paid"}
+  ],
+  proposals:[
+    {id:1,title:"Enterprise Growth System",client:"Vertex AI",value:28000,status:"Sent"},
+    {id:2,title:"Digital Transformation",client:"Atlas Group",value:34000,status:"Negotiation"},
+    {id:3,title:"Brand Experience",client:"Rohan Kapoor",value:9500,status:"Draft"}
+  ],
+  events:[
+    {id:1,title:"Apex strategy call",date:"Aug 20, 2026",time:"11:00 AM",type:"Meeting"},
+    {id:2,title:"Northstar delivery",date:"Aug 22, 2026",time:"03:00 PM",type:"Deadline"},
+    {id:3,title:"Atlas proposal review",date:"Aug 25, 2026",time:"01:30 PM",type:"Meeting"}
+  ],
+  activity:[
+    {icon:"✓",title:"Invoice INV-1046 marked as paid",time:"12 min ago"},
+    {icon:"↗",title:"Atlas Group moved to Negotiation",time:"34 min ago"},
+    {icon:"◆",title:"Apex Rebrand reached 82%",time:"1 hour ago"},
+    {icon:"◉",title:"New lead added: Quantum Systems",time:"2 hours ago"},
+    {icon:"▤",title:"Proposal sent to Vertex AI",time:"4 hours ago"}
+  ]
 };
 
-let data = JSON.parse(localStorage.getItem("vantaData")) || defaultData;
+let data = JSON.parse(localStorage.getItem("vanteraData")) || structuredClone(defaultData);
 
 function save(){
- localStorage.setItem("vantaData",JSON.stringify(data));
+  localStorage.setItem("vanteraData",JSON.stringify(data));
 }
 
-/* -----------------------------
-   NAVIGATION
------------------------------ */
+function money(n){
+  return "$"+Number(n).toLocaleString("en-US");
+}
 
-const names={
- dashboard:"Overview",
- clients:"Clients",
- projects:"Projects",
- pipeline:"Pipeline",
- tasks:"Tasks",
- invoices:"Invoices",
- services:"Services",
- analytics:"Analytics",
- activity:"Activity"
+function initials(name){
+  return name.split(" ").map(x=>x[0]).join("").slice(0,2).toUpperCase();
+}
+
+function toast(title,msg=""){
+  const box=document.createElement("div");
+  box.className="toast";
+  box.innerHTML=`<b>${title}</b><small>${msg}</small>`;
+  document.getElementById("toastWrap").appendChild(box);
+  setTimeout(()=>box.remove(),3200);
+}
+
+function addActivity(icon,title){
+  data.activity.unshift({icon,title,time:"just now"});
+  data.activity=data.activity.slice(0,30);
+  save();
+  renderActivity();
+}
+
+/* ================= NAVIGATION ================= */
+
+const titles={
+  dashboard:["Overview","Your business command center"],
+  clients:["Clients","Manage your client relationship network"],
+  projects:["Projects","Track delivery and project performance"],
+  leads:["Sales Pipeline","Turn opportunities into revenue"],
+  tasks:["Tasks","Your execution command center"],
+  invoices:["Invoices","Billing and cash flow"],
+  proposals:["Proposals","Close more high-value work"],
+  calendar:["Calendar","Meetings and deadlines"],
+  analytics:["Business Intelligence","Signals behind your business"],
+  activity:["Activity","Workspace activity timeline"],
+  settings:["Settings","Configure your workspace"]
 };
 
-function setView(view){
+function showView(name){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  const view=document.getElementById("view-"+name);
+  if(view)view.classList.add("active");
 
- document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
- document.getElementById(view)?.classList.add("active");
+  document.querySelectorAll(".nav button").forEach(b=>{
+    b.classList.toggle("active",b.dataset.view===name);
+  });
 
- document.querySelectorAll(".nav button[data-view]").forEach(b=>{
-  b.classList.toggle("active",b.dataset.view===view);
- });
+  if(titles[name]){
+    document.getElementById("pageTitle").textContent=titles[name][0];
+    document.getElementById("pageSub").textContent=titles[name][1];
+  }
 
- document.getElementById("crumb").textContent=names[view]||"Overview";
+  if(name==="dashboard")renderDashboard();
+  if(name==="clients")renderClients();
+  if(name==="projects")renderProjects();
+  if(name==="leads")renderLeads();
+  if(name==="tasks")renderTasks();
+  if(name==="invoices")renderInvoices();
+  if(name==="proposals")renderProposals();
+  if(name==="calendar")renderCalendar();
+  if(name==="analytics")renderAnalytics();
+  if(name==="activity")renderActivity();
 
- document.getElementById("sidebar").classList.remove("open");
-
- if(view==="clients")renderClients();
- if(view==="projects")renderProjects();
- if(view==="pipeline")renderPipeline();
- if(view==="tasks")renderTasks();
- if(view==="invoices")renderInvoices();
- if(view==="activity")renderActivity();
-
- window.scrollTo({top:0,behavior:"smooth"});
-
- setTimeout(()=>lucide.createIcons(),50);
+  document.getElementById("sidebar").classList.remove("open");
 }
 
-document.querySelectorAll(".nav button[data-view]").forEach(btn=>{
- btn.addEventListener("click",()=>setView(btn.dataset.view));
+document.querySelectorAll(".nav button").forEach(btn=>{
+  btn.addEventListener("click",()=>showView(btn.dataset.view));
 });
 
-function toggleSidebar(){
- document.getElementById("sidebar").classList.toggle("open");
-}
+document.getElementById("mobileMenu").onclick=()=>{
+  document.getElementById("sidebar").classList.toggle("open");
+};
 
-/* -----------------------------
-   MODALS
------------------------------ */
+/* ================= DASHBOARD ================= */
 
-function openModal(id){
- document.getElementById(id).classList.add("show");
-}
+function renderDashboard(){
+  const revenue=data.invoices
+    .filter(x=>x.status==="Paid")
+    .reduce((a,b)=>a+b.amount,0)+
+    data.projects.reduce((a,b)=>a+b.value*.55,0);
 
-function closeModal(id){
- document.getElementById(id).classList.remove("show");
-}
+  const pipeline=data.leads.reduce((a,b)=>a+b.value,0);
+  const openTasks=data.tasks.filter(x=>!x.done).length;
+  const activeClients=data.clients.filter(x=>x.status==="Active").length;
 
-function openQuickCreate(){
- openModal("quickModal");
-}
-
-document.querySelectorAll(".modal-bg").forEach(bg=>{
- bg.addEventListener("click",e=>{
-  if(e.target===bg)bg.classList.remove("show");
- });
-});
-
-/* -----------------------------
-   TOAST
------------------------------ */
-
-function showToast(message){
-
- const wrap=document.getElementById("toastWrap");
-
- const el=document.createElement("div");
- el.className="toast";
-
- el.innerHTML=`
-  <i data-lucide="check-circle"></i>
-  <span>${message}</span>
- `;
-
- wrap.appendChild(el);
- lucide.createIcons();
-
- setTimeout(()=>{
-  el.style.opacity="0";
-  el.style.transform="translateY(10px)";
-  el.style.transition=".25s";
-  setTimeout(()=>el.remove(),250);
- },2800);
-}
-
-/* -----------------------------
-   CLIENTS
------------------------------ */
-
-function renderClients(){
-
- const q=(document.getElementById("clientSearch")?.value||"").toLowerCase();
- const filter=document.getElementById("clientFilter")?.value||"all";
-
- const list=data.clients.filter(c=>{
-  const search=
-   c.name.toLowerCase().includes(q) ||
-   c.company.toLowerCase().includes(q);
-
-  const status=filter==="all"||c.status===filter;
-
-  return search&&status;
- });
-
- const body=document.getElementById("clientsBody");
-
- body.innerHTML=list.length?list.map(c=>`
-
- <tr>
-  <td>
-   <div class="person">
-    <div class="person-avatar">${initials(c.name)}</div>
-    <div>
-     <b>${c.name}</b>
-     <span>${c.company}</span>
+  document.getElementById("kpis").innerHTML=`
+    <div class="card kpi">
+      <div class="kpi-top"><span>EST. REVENUE</span><div class="kpi-icon">$</div></div>
+      <div class="kpi-value">${money(Math.round(revenue))}</div>
+      <span class="kpi-change">↗ 18.4% this month</span>
     </div>
-   </div>
-  </td>
-
-  <td>
-   <span class="badge ${c.status==="Active"?"green":c.status==="Lead"?"blue":"yellow"}">
-    ${c.status}
-   </span>
-  </td>
-
-  <td>${c.projects}</td>
-
-  <td style="color:#fff;font-weight:800">
-   ${money(c.value)}
-  </td>
-
-  <td>${c.last}</td>
-
-  <td>
-   <button class="icon-btn" onclick="deleteClient(${c.id})">
-    <i data-lucide="trash-2"></i>
-   </button>
-  </td>
- </tr>
-
- `).join(""):`<tr><td colspan="6"><div class="empty">No clients found.</div></td></tr>`;
-
- document.getElementById("clientMetric").textContent=data.clients.length;
-
- lucide.createIcons();
-}
-
-function createClient(){
-
- const name=document.getElementById("newClientName").value.trim();
- const company=document.getElementById("newClientCompany").value.trim();
-
- if(!name||!company){
-  showToast("Enter client name and company");
-  return;
- }
-
- data.clients.unshift({
-  id:Date.now(),
-  name,
-  company,
-  status:document.getElementById("newClientStatus").value,
-  projects:0,
-  value:Number(document.getElementById("newClientValue").value)||0,
-  last:"Just now"
- });
-
- save();
- closeModal("clientModal");
-
- document.getElementById("newClientName").value="";
- document.getElementById("newClientCompany").value="";
- document.getElementById("newClientValue").value="";
-
- renderClients();
- showToast("Client created successfully");
-}
-
-function deleteClient(id){
-
- data.clients=data.clients.filter(c=>c.id!==id);
- save();
- renderClients();
- showToast("Client removed");
-}
-
-/* -----------------------------
-   PROJECTS
------------------------------ */
-
-function renderProjects(){
-
- const grid=document.getElementById("projectsGrid");
-
- grid.innerHTML=data.projects.map(p=>`
-
- <div class="card project">
-
-  <div class="project-top">
-
-   <div>
-    <h3>${p.name}</h3>
-    <p>${p.type} • ${p.client}</p>
-   </div>
-
-   <span class="badge ${p.status==="ON TRACK"?"green":p.status==="REVIEW"?"yellow":"blue"}">
-    ${p.status}
-   </span>
-
-  </div>
-
-  <div class="progress">
-   <div style="width:${p.progress}%"></div>
-  </div>
-
-  <div class="progress-meta">
-   <span>${p.progress}% complete</span>
-   <span>${p.days}</span>
-  </div>
-
- </div>
-
- `).join("");
-
- lucide.createIcons();
-}
-
-function createProject(){
-
- const name=document.getElementById("newProjectName").value.trim();
-
- if(!name){
-  showToast("Enter project name");
-  return;
- }
-
- data.projects.unshift({
-  id:Date.now(),
-  name,
-  client:document.getElementById("newProjectClient").value||"New Client",
-  type:"Digital Experience",
-  progress:Number(document.getElementById("newProjectProgress").value)||0,
-  status:document.getElementById("newProjectStatus").value,
-  days:"New"
- });
-
- save();
- closeModal("projectModal");
- renderProjects();
- showToast("Project created");
-}
-
-/* -----------------------------
-   PIPELINE
------------------------------ */
-
-const stages=["LEAD","QUALIFIED","PROPOSAL","WON"];
-
-function renderPipeline(){
-
- const board=document.getElementById("pipelineBoard");
-
- board.innerHTML=stages.map(stage=>{
-
-  const deals=data.deals.filter(d=>d.stage===stage);
-
-  return`
-
-  <div class="column"
-       ondragover="event.preventDefault()"
-       ondrop="dropDeal(event,'${stage}')">
-
-   <div class="column-head">
-    <span>${stage}</span>
-    <span class="column-count">${deals.length}</span>
-   </div>
-
-   ${deals.map(d=>`
-
-    <div class="deal"
-         draggable="true"
-         ondragstart="dragDeal(event,${d.id})">
-
-     <div class="deal-name">${d.name}</div>
-     <div class="deal-company">${d.company}</div>
-
-     <div class="deal-foot">
-      <span class="money">${money(d.value)}</span>
-      <button
-       class="icon-btn"
-       style="width:25px;height:25px"
-       onclick="deleteDeal(${d.id})">
-       <i data-lucide="x"></i>
-      </button>
-     </div>
-
+    <div class="card kpi">
+      <div class="kpi-top"><span>PIPELINE</span><div class="kpi-icon">↗</div></div>
+      <div class="kpi-value">${money(pipeline)}</div>
+      <span class="kpi-change">↗ ${data.leads.length} opportunities</span>
     </div>
-
-   `).join("")||`<div class="empty">Drop opportunities here</div>`}
-
-  </div>
-
+    <div class="card kpi">
+      <div class="kpi-top"><span>ACTIVE CLIENTS</span><div class="kpi-icon">◉</div></div>
+      <div class="kpi-value">${activeClients}</div>
+      <span class="kpi-change">↗ network growing</span>
+    </div>
+    <div class="card kpi">
+      <div class="kpi-top"><span>OPEN TASKS</span><div class="kpi-icon">✓</div></div>
+      <div class="kpi-value">${openTasks}</div>
+      <span class="kpi-change">execution queue</span>
+    </div>
   `;
 
- }).join("");
+  renderChart("revenueChart");
+  renderActivityMini();
 
- lucide.createIcons();
+  const done=data.tasks.filter(x=>x.done).length;
+  const rate=data.tasks.length?Math.round(done/data.tasks.length*100):0;
+  document.getElementById("taskPercent").textContent=rate+"%";
 }
 
-let draggedDeal=null;
-
-function dragDeal(e,id){
- draggedDeal=id;
- e.target.classList.add("dragging");
+function renderChart(id){
+  const values=[38,55,47,68,61,82,74,91,78,94,87,100];
+  const months=["SEP","OCT","NOV","DEC","JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG"];
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.innerHTML=values.map((v,i)=>`
+    <div class="bar" style="height:${v}%">
+      <small>${months[i]}</small>
+    </div>
+  `).join("");
 }
 
-function dropDeal(e,stage){
-
- const deal=data.deals.find(d=>d.id===draggedDeal);
-
- if(deal){
-  deal.stage=stage;
-  save();
-  renderPipeline();
-  showToast(`Opportunity moved to ${stage}`);
- }
+function renderActivityMini(){
+  const el=document.getElementById("activityMini");
+  el.innerHTML=data.activity.slice(0,5).map(a=>`
+    <div class="activity-item">
+      <div class="activity-icon">${a.icon}</div>
+      <div><strong>${a.title}</strong><small>${a.time}</small></div>
+    </div>
+  `).join("");
 }
 
-function createDeal(){
+/* ================= CLIENTS ================= */
 
- const name=document.getElementById("newDealName").value.trim();
+function renderClients(){
+  const q=(document.getElementById("clientSearch")?.value||"").toLowerCase();
+  const filter=document.getElementById("clientFilter")?.value||"all";
 
- if(!name){
-  showToast("Enter opportunity name");
-  return;
- }
+  let arr=data.clients.filter(c=>{
+    const text=(c.name+" "+c.company).toLowerCase();
+    return text.includes(q)&&(filter==="all"||c.status===filter);
+  });
 
- data.deals.unshift({
-  id:Date.now(),
-  name,
-  company:document.getElementById("newDealCompany").value||"New Company",
-  value:Number(document.getElementById("newDealValue").value)||0,
-  stage:document.getElementById("newDealStage").value
- });
-
- save();
- closeModal("dealModal");
- renderPipeline();
- showToast("Opportunity added");
+  document.getElementById("clientTable").innerHTML=arr.length?arr.map(c=>`
+    <tr>
+      <td><div class="person"><div class="avatar">${initials(c.name)}</div><b>${c.name}</b></div></td>
+      <td>${c.company}</td>
+      <td><span class="badge ${c.status==="Active"?"green":c.status==="Paused"?"yellow":"purple"}">${c.status}</span></td>
+      <td>${c.projects}</td>
+      <td>${money(c.revenue)}</td>
+      <td><button class="ghost" onclick="clientAction(${c.id})">View</button></td>
+    </tr>
+  `).join(""):`<tr><td colspan="6"><div class="empty">No clients found.</div></td></tr>`;
 }
 
-function deleteDeal(id){
-
- data.deals=data.deals.filter(d=>d.id!==id);
- save();
- renderPipeline();
- showToast("Opportunity removed");
+function clientAction(id){
+  const c=data.clients.find(x=>x.id===id);
+  if(!c)return;
+  openDetail(
+    c.name,
+    `<p class="muted" style="font-size:11px">${c.company}</p>
+     <br>
+     <div class="grid-3">
+       <div class="card panel"><span class="muted">STATUS</span><h2 style="margin-top:10px">${c.status}</h2></div>
+       <div class="card panel"><span class="muted">PROJECTS</span><h2 style="margin-top:10px">${c.projects}</h2></div>
+       <div class="card panel"><span class="muted">REVENUE</span><h2 style="margin-top:10px">${money(c.revenue)}</h2></div>
+     </div>`
+  );
 }
 
-/* -----------------------------
-   TASKS
------------------------------ */
+/* ================= PROJECTS ================= */
+
+function renderProjects(){
+  document.getElementById("projectGrid").innerHTML=data.projects.map(p=>`
+    <div class="card panel">
+      <div class="panel-head">
+        <span class="badge ${p.status==="At Risk"?"red":"green"}">${p.status}</span>
+        <button class="icon-btn" onclick="deleteItem('projects',${p.id})">×</button>
+      </div>
+      <h3 style="font-size:16px">${p.name}</h3>
+      <p class="muted" style="font-size:9px;margin-top:5px">${p.client}</p>
+      <div style="display:flex;justify-content:space-between;margin-top:28px;font-size:9px">
+        <span>Progress</span><b>${p.progress}%</b>
+      </div>
+      <div style="height:5px;background:#181c25;border-radius:10px;margin-top:8px">
+        <div style="width:${p.progress}%;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:10px"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:20px">
+        <span class="muted" style="font-size:8px">PROJECT VALUE</span>
+        <b style="font-size:10px">${money(p.value)}</b>
+      </div>
+    </div>
+  `).join("");
+}
+
+/* ================= LEADS ================= */
+
+const stages=["New","Contacted","Proposal","Negotiation"];
+
+function renderLeads(){
+  document.getElementById("pipeline").innerHTML=stages.map(stage=>{
+    const deals=data.leads.filter(x=>x.stage===stage);
+    const total=deals.reduce((a,b)=>a+b.value,0);
+    return `
+      <div class="stage">
+        <div class="stage-title">
+          <b>${stage}</b><span class="muted">${deals.length}</span>
+        </div>
+        <div class="muted" style="font-size:8px;margin-bottom:13px">${money(total)} pipeline</div>
+        ${deals.map(d=>`
+          <div class="deal" onclick="leadAction(${d.id})">
+            <strong>${d.name}</strong>
+            <small>${money(d.value)} · ${d.prob}% probability</small>
+          </div>
+        `).join("")||`<div class="empty" style="padding:30px 5px">No opportunities</div>`}
+      </div>
+    `;
+  }).join("");
+}
+
+function leadAction(id){
+  const d=data.leads.find(x=>x.id===id);
+  if(!d)return;
+
+  openDetail(d.name,`
+    <div class="grid-3">
+      <div class="card panel"><span class="muted">VALUE</span><h2 style="margin-top:8px">${money(d.value)}</h2></div>
+      <div class="card panel"><span class="muted">STAGE</span><h2 style="margin-top:8px">${d.stage}</h2></div>
+      <div class="card panel"><span class="muted">PROBABILITY</span><h2 style="margin-top:8px">${d.prob}%</h2></div>
+    </div>
+    <br>
+    <select class="input" id="leadStageSelect">
+      ${stages.map(s=>`<option ${s===d.stage?"selected":""}>${s}</option>`).join("")}
+    </select>
+  `,()=>{
+    d.stage=document.getElementById("leadStageSelect").value;
+    save();renderLeads();addActivity("↗",`${d.name} moved to ${d.stage}`);closeModal();toast("Opportunity updated");
+  });
+}
+
+/* ================= TASKS ================= */
 
 function renderTasks(){
+  const filter=document.getElementById("taskFilter")?.value||"all";
+  let arr=data.tasks.filter(t=>{
+    if(filter==="open")return !t.done;
+    if(filter==="done")return t.done;
+    if(filter==="high")return t.priority==="High";
+    return true;
+  });
 
- const filter=document.getElementById("taskFilter")?.value||"all";
-
- const list=data.tasks.filter(t=>filter==="all"||t.status===filter);
-
- const box=document.getElementById("tasksList");
-
- box.innerHTML=list.length?list.map(t=>`
-
- <div style="
-  display:flex;
-  align-items:center;
-  gap:13px;
-  padding:14px 5px;
-  border-bottom:1px solid rgba(255,255,255,.05);
- ">
-
-  <button
-   onclick="toggleTask(${t.id})"
-   class="icon-btn"
-   style="${t.status==="Done"?"background:rgba(156,255,59,.1);color:var(--accent)":""}">
-   <i data-lucide="${t.status==="Done"?"check":"circle"}"></i>
-  </button>
-
-  <div style="flex:1">
-   <div style="
-    font-size:10px;
-    font-weight:800;
-    ${t.status==="Done"?"text-decoration:line-through;color:#59616b":""}">
-    ${t.name}
-   </div>
-   <div style="font-size:8px;color:#626b77;margin-top:4px">
-    Due ${t.due}
-   </div>
-  </div>
-
-  <span class="badge ${
-   t.priority==="High"?"red":
-   t.priority==="Medium"?"yellow":""
-  }">${t.priority}</span>
-
-  <button class="icon-btn" onclick="deleteTask(${t.id})">
-   <i data-lucide="trash-2"></i>
-  </button>
-
- </div>
-
- `).join(""):`<div class="empty">No tasks.</div>`;
-
- lucide.createIcons();
+  document.getElementById("taskGrid").innerHTML=arr.map(t=>`
+    <div class="task ${t.done?"done":""}">
+      <div class="task-row">
+        <button class="check ${t.done?"checked":""}" onclick="toggleTask(${t.id})">${t.done?"✓":""}</button>
+        <div style="flex:1">
+          <strong>${t.title}</strong>
+          <small>${t.project}</small>
+          <div style="margin-top:12px;display:flex;justify-content:space-between">
+            <span class="badge ${t.priority==="High"?"red":t.priority==="Medium"?"yellow":"green"}">${t.priority}</span>
+            <span class="muted" style="font-size:8px">${t.due}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join("");
 }
 
 function toggleTask(id){
-
- const task=data.tasks.find(t=>t.id===id);
-
- if(task){
-  task.status=task.status==="Done"?"Open":"Done";
-  save();
-  renderTasks();
-  showToast(task.status==="Done"?"Task completed":"Task reopened");
- }
+  const t=data.tasks.find(x=>x.id===id);
+  if(!t)return;
+  t.done=!t.done;
+  save();renderTasks();renderDashboard();
+  addActivity("✓",`${t.title} marked ${t.done?"completed":"open"}`);
+  toast(t.done?"Task completed":"Task reopened");
 }
 
-function createTask(){
-
- const name=document.getElementById("newTaskName").value.trim();
-
- if(!name){
-  showToast("Enter a task");
-  return;
- }
-
- data.tasks.unshift({
-  id:Date.now(),
-  name,
-  priority:document.getElementById("newTaskPriority").value,
-  due:document.getElementById("newTaskDue").value||"Today",
-  status:"Open"
- });
-
- save();
- closeModal("taskModal");
- renderTasks();
- showToast("Task added");
-}
-
-function deleteTask(id){
-
- data.tasks=data.tasks.filter(t=>t.id!==id);
- save();
- renderTasks();
- showToast("Task deleted");
-}
-
-/* -----------------------------
-   INVOICES
------------------------------ */
+/* ================= INVOICES ================= */
 
 function renderInvoices(){
-
- const body=document.getElementById("invoiceBody");
-
- body.innerHTML=data.invoices.map(i=>`
-
- <tr>
-
-  <td style="font-weight:800;color:#fff">
-   #INV-${i.id}
-  </td>
-
-  <td>${i.client}</td>
-
-  <td>${i.date}</td>
-
-  <td style="font-weight:800;color:#fff">
-   ${money(i.amount)}
-  </td>
-
-  <td>
-   <span class="badge ${
-    i.status==="Paid"?"green":
-    i.status==="Overdue"?"red":"yellow"
-   }">${i.status}</span>
-  </td>
-
-  <td>
-   <button class="secondary" onclick="toggleInvoice(${i.id})">
-    ${i.status==="Paid"?"Mark pending":"Mark paid"}
-   </button>
-  </td>
-
- </tr>
-
- `).join("");
-
+  document.getElementById("invoiceTable").innerHTML=data.invoices.map(i=>`
+    <tr>
+      <td><b>${i.id}</b></td>
+      <td>${i.client}</td>
+      <td><b>${money(i.amount)}</b></td>
+      <td class="muted">${i.due}</td>
+      <td><span class="badge ${i.status==="Paid"?"green":i.status==="Overdue"?"red":"yellow"}">${i.status}</span></td>
+      <td><button class="ghost" onclick="invoiceAction('${i.id}')">Manage</button></td>
+    </tr>
+  `).join("");
 }
 
-function createInvoice(){
-
- const client=document.getElementById("newInvoiceClient").value.trim();
-
- if(!client){
-  showToast("Enter client");
-  return;
- }
-
- data.invoices.unshift({
-  id:Math.floor(Math.random()*9000)+1000,
-  client,
-  date:document.getElementById("newInvoiceDate").value||"Aug 19, 2026",
-  amount:Number(document.getElementById("newInvoiceAmount").value)||0,
-  status:document.getElementById("newInvoiceStatus").value
- });
-
- save();
- closeModal("invoiceModal");
- renderInvoices();
- showToast("Invoice created");
+function invoiceAction(id){
+  const i=data.invoices.find(x=>x.id===id);
+  openDetail(i.id,`
+    <p class="muted" style="font-size:10px">${i.client}</p>
+    <h1 style="font-family:'Space Grotesk';margin:15px 0">${money(i.amount)}</h1>
+    <p style="font-size:10px">Due: ${i.due}</p>
+    <br>
+    <select class="input" id="invoiceStatus">
+      <option ${i.status==="Pending"?"selected":""}>Pending</option>
+      <option ${i.status==="Paid"?"selected":""}>Paid</option>
+      <option ${i.status==="Overdue"?"selected":""}>Overdue</option>
+    </select>
+  `,()=>{
+    i.status=document.getElementById("invoiceStatus").value;
+    save();renderInvoices();renderDashboard();addActivity("◇",`${i.id} marked ${i.status}`);closeModal();toast("Invoice updated");
+  });
 }
 
-function toggleInvoice(id){
+/* ================= PROPOSALS ================= */
 
- const invoice=data.invoices.find(i=>i.id===id);
-
- if(invoice){
-  invoice.status=invoice.status==="Paid"?"Pending":"Paid";
-  save();
-  renderInvoices();
-  showToast(`Invoice marked ${invoice.status.toLowerCase()}`);
- }
+function renderProposals(){
+  document.getElementById("proposalGrid").innerHTML=data.proposals.map(p=>`
+    <div class="card panel">
+      <div class="panel-head">
+        <span class="badge purple">${p.status}</span>
+        <button class="icon-btn" onclick="deleteItem('proposals',${p.id})">×</button>
+      </div>
+      <h3>${p.title}</h3>
+      <p class="muted" style="font-size:9px;margin-top:6px">${p.client}</p>
+      <div style="font-family:'Space Grotesk';font-size:28px;margin-top:25px">${money(p.value)}</div>
+      <button class="ghost" style="margin-top:18px" onclick="proposalAction(${p.id})">Open Proposal</button>
+    </div>
+  `).join("");
 }
 
-/* -----------------------------
-   ACTIVITY
------------------------------ */
+function proposalAction(id){
+  const p=data.proposals.find(x=>x.id===id);
+  openDetail(p.title,`
+    <p class="muted">${p.client}</p>
+    <h1 style="font-family:'Space Grotesk';margin:15px 0">${money(p.value)}</h1>
+    <span class="badge purple">${p.status}</span>
+    <p class="muted" style="margin-top:20px;font-size:10px;line-height:1.7">
+      Proposal workspace preview. In a production deployment this can connect
+      to a real proposal backend, document storage and e-signature system.
+    </p>
+  `);
+}
+
+/* ================= CALENDAR ================= */
+
+function renderCalendar(){
+  document.getElementById("calendarList").innerHTML=data.events.map(e=>`
+    <div style="display:flex;align-items:center;gap:15px;padding:16px 5px;border-bottom:1px solid var(--line)">
+      <div style="width:45px;height:45px;border-radius:12px;background:rgba(139,124,255,.08);display:grid;place-items:center;font-size:17px">
+        ${e.type==="Meeting"?"◉":"◆"}
+      </div>
+      <div style="flex:1">
+        <b style="font-size:11px">${e.title}</b>
+        <div class="muted" style="font-size:9px;margin-top:5px">${e.date} · ${e.time}</div>
+      </div>
+      <span class="badge">${e.type}</span>
+    </div>
+  `).join("");
+}
+
+/* ================= ANALYTICS ================= */
+
+function renderAnalytics(){
+  const revenue=data.invoices.reduce((a,b)=>a+(b.status==="Paid"?b.amount:0),0);
+  const pipeline=data.leads.reduce((a,b)=>a+b.value,0);
+  const avg=data.projects.length?
+    Math.round(data.projects.reduce((a,b)=>a+b.progress,0)/data.projects.length):0;
+
+  document.getElementById("analyticsKpis").innerHTML=`
+    <div class="card kpi"><div class="kpi-top"><span>COLLECTED</span></div><div class="kpi-value">${money(revenue)}</div><span class="kpi-change">Paid invoices</span></div>
+    <div class="card kpi"><div class="kpi-top"><span>PIPELINE</span></div><div class="kpi-value">${money(pipeline)}</div><span class="kpi-change">Open opportunities</span></div>
+    <div class="card kpi"><div class="kpi-top"><span>DELIVERY</span></div><div class="kpi-value">${avg}%</div><span class="kpi-change">Average project progress</span></div>
+    <div class="card kpi"><div class="kpi-top"><span>CLIENTS</span></div><div class="kpi-value">${data.clients.length}</div><span class="kpi-change">Total network</span></div>
+  `;
+
+  renderChart("analyticsChart");
+
+  const health=[
+    ["Client retention","92%","green"],
+    ["Project delivery","87%","green"],
+    ["Invoice collection","74%","yellow"],
+    ["Lead velocity","81%","green"],
+    ["Team workload","63%","yellow"]
+  ];
+
+  document.getElementById("healthList").innerHTML=health.map(x=>`
+    <div style="margin-bottom:18px">
+      <div style="display:flex;justify-content:space-between;font-size:9px;margin-bottom:7px">
+        <span>${x[0]}</span><b>${x[1]}</b>
+      </div>
+      <div style="height:5px;background:#191d26;border-radius:10px">
+        <div style="width:${x[1]};height:100%;background:var(--${x[2]});border-radius:10px"></div>
+      </div>
+    </div>
+  `).join("");
+}
+
+/* ================= ACTIVITY ================= */
 
 function renderActivity(){
-
- const box=document.getElementById("activityFull");
-
- box.innerHTML=data.activity.map(a=>`
-
- <div class="activity-item">
-
-  <div class="activity-icon">
-   <i data-lucide="${a[0]}"></i>
-  </div>
-
-  <div class="activity-content">
-   <p>${a[1]}</p>
-   <span>${a[2]}</span>
-  </div>
-
- </div>
-
- `).join("");
-
- lucide.createIcons();
+  document.getElementById("activityFull").innerHTML=data.activity.map(a=>`
+    <div class="activity-item" style="padding:8px 0">
+      <div class="activity-icon">${a.icon}</div>
+      <div><strong>${a.title}</strong><small>${a.time}</small></div>
+    </div>
+  `).join("");
 }
 
-/* -----------------------------
-   COMMAND PALETTE
------------------------------ */
-
-function openCommand(){
-
- openModal("commandModal");
-
- setTimeout(()=>{
-  document.getElementById("commandInput").focus();
- },100);
+function clearActivity(){
+  data.activity=[];
+  save();renderActivity();renderActivityMini();
+  toast("Activity cleared","Workspace activity timeline is empty.");
 }
 
-function filterCommands(){
+/* ================= CREATE MODALS ================= */
 
- const q=document.getElementById("commandInput").value.toLowerCase();
+function openCreate(type="client"){
+  const configs={
+    client:{
+      title:"Add Client",
+      fields:[
+        ["name","Client name","text",""],
+        ["company","Company","text",""],
+        ["status","Status","select","Active|Prospect|Paused"]
+      ]
+    },
+    project:{
+      title:"New Project",
+      fields:[
+        ["name","Project name","text",""],
+        ["client","Client","text",""],
+        ["value","Project value","number",""],
+        ["progress","Progress %","number","0"]
+      ]
+    },
+    lead:{
+      title:"New Opportunity",
+      fields:[
+        ["name","Company / opportunity","text",""],
+        ["value","Potential value","number",""],
+        ["prob","Probability %","number","20"],
+        ["stage","Stage","select","New|Contacted|Proposal|Negotiation"]
+      ]
+    },
+    task:{
+      title:"Add Task",
+      fields:[
+        ["title","Task","text",""],
+        ["project","Project","text",""],
+        ["priority","Priority","select","High|Medium|Low"],
+        ["due","Due","text","Today"]
+      ]
+    },
+    invoice:{
+      title:"Create Invoice",
+      fields:[
+        ["client","Client","text",""],
+        ["amount","Amount","number",""],
+        ["due","Due date","text","Aug 30, 2026"],
+        ["status","Status","select","Pending|Paid|Overdue"]
+      ]
+    },
+    proposal:{
+      title:"New Proposal",
+      fields:[
+        ["title","Proposal title","text",""],
+        ["client","Client","text",""],
+        ["value","Proposal value","number",""],
+        ["status","Status","select","Draft|Sent|Negotiation|Accepted"]
+      ]
+    },
+    event:{
+      title:"Add Calendar Event",
+      fields:[
+        ["title","Event title","text",""],
+        ["date","Date","text","Aug 30, 2026"],
+        ["time","Time","text","11:00 AM"],
+        ["type","Type","select","Meeting|Deadline|Reminder"]
+      ]
+    }
+  };
 
- document.querySelectorAll(".command-item[data-command]").forEach(item=>{
-  item.style.display=
-   item.dataset.command.includes(q)?"flex":"none";
- });
+  const c=configs[type]||configs.client;
+  document.getElementById("modalTitle").textContent=c.title;
+
+  document.getElementById("modalBody").innerHTML=`
+    <form id="createForm" class="form-grid">
+      ${c.fields.map(f=>{
+        if(f[3] && f[2]==="select"){
+          return `<div class="field"><label>${f[1]}</label><select class="input" name="${f[0]}">${f[3].split("|").map(x=>`<option>${x}</option>`).join("")}</select></div>`
+        }
+        return `<div class="field"><label>${f[1]}</label><input class="input" name="${f[0]}" type="${f[2]}" value="${f[3]||""}" placeholder="${f[1]}"></div>`
+      }).join("")}
+    </form>
+  `;
+
+  document.getElementById("modalSave").onclick=()=>{
+    const fd=new FormData(document.getElementById("createForm"));
+    const o=Object.fromEntries(fd.entries());
+
+    if(Object.values(o).some(v=>!String(v).trim())){
+      toast("Missing information","Please complete all fields.");
+      return;
+    }
+
+    if(type==="client"){
+      data.clients.push({
+        id:Date.now(),name:o.name,company:o.company,status:o.status,
+        projects:0,revenue:0
+      });
+      addActivity("◉",`New client added: ${o.company}`);
+    }
+
+    if(type==="project"){
+      data.projects.push({
+        id:Date.now(),name:o.name,client:o.client,
+        value:Number(o.value),progress:Number(o.progress||0),
+        status:Number(o.progress||0)>70?"On Track":"In Progress"
+      });
+      addActivity("◆",`New project created: ${o.name}`);
+    }
+
+    if(type==="lead"){
+      data.leads.push({
+        id:Date.now(),name:o.name,value:Number(o.value),
+        prob:Number(o.prob),stage:o.stage
+      });
+      addActivity("↗",`New opportunity added: ${o.name}`);
+    }
+
+    if(type==="task"){
+      data.tasks.push({
+        id:Date.now(),title:o.title,project:o.project,
+        priority:o.priority,due:o.due,done:false
+      });
+      addActivity("✓",`New task added: ${o.title}`);
+    }
+
+    if(type==="invoice"){
+      const num="INV-"+Math.floor(1000+Math.random()*8999);
+      data.invoices.push({
+        id:num,client:o.client,amount:Number(o.amount),
+        due:o.due,status:o.status
+      });
+      addActivity("◇",`Invoice ${num} created`);
+    }
+
+    if(type==="proposal"){
+      data.proposals.push({
+        id:Date.now(),title:o.title,client:o.client,
+        value:Number(o.value),status:o.status
+      });
+      addActivity("▤",`Proposal created: ${o.title}`);
+    }
+
+    if(type==="event"){
+      data.events.push({
+        id:Date.now(),title:o.title,date:o.date,
+        time:o.time,type:o.type
+      });
+      addActivity("□",`Calendar event added: ${o.title}`);
+    }
+
+    save();
+    closeModal();
+    refreshAll();
+    toast("Created successfully",c.title+" is now in your workspace.");
+  };
+
+  document.getElementById("modalBg").classList.add("open");
 }
 
-function commandGo(view){
-
- closeModal("commandModal");
- document.getElementById("commandInput").value="";
- setView(view);
+function openDetail(title,html,saveFn=null){
+  document.getElementById("modalTitle").textContent=title;
+  document.getElementById("modalBody").innerHTML=html;
+  document.getElementById("modalSave").style.display=saveFn?"block":"none";
+  document.getElementById("modalSave").onclick=saveFn||null;
+  document.getElementById("modalBg").classList.add("open");
 }
 
-/* -----------------------------
-   QUICK COMMAND
------------------------------ */
+function closeModal(e){
+  if(e && e.target!==document.getElementById("modalBg"))return;
+  document.getElementById("modalBg").classList.remove("open");
+  document.getElementById("modalSave").style.display="block";
+}
+
+/* ================= DELETE ================= */
+
+function deleteItem(collection,id){
+  if(!confirm("Delete this item from the demo workspace?"))return;
+  data[collection]=data[collection].filter(x=>x.id!==id);
+  save();refreshAll();
+  toast("Deleted","Item removed from workspace.");
+}
+
+/* ================= SEARCH / COMMAND ================= */
+
+const commands=[
+  ["Open Dashboard","dashboard"],
+  ["Open Clients","clients"],
+  ["Open Projects","projects"],
+  ["Open Sales Pipeline","leads"],
+  ["Open Tasks","tasks"],
+  ["Open Invoices","invoices"],
+  ["Open Proposals","proposals"],
+  ["Open Calendar","calendar"],
+  ["Open Analytics","analytics"],
+  ["Open Activity","activity"],
+  ["Open Settings","settings"]
+];
+
+function renderCommands(q=""){
+  const arr=commands.filter(c=>c[0].toLowerCase().includes(q.toLowerCase()));
+  document.getElementById("commandList").innerHTML=arr.map(c=>`
+    <div class="command-item" onclick="commandRun('${c[1]}')">
+      <span>${c[0]}</span><kbd>ENTER</kbd>
+    </div>
+  `).join("");
+}
+
+function commandRun(view){
+  document.getElementById("command").classList.remove("open");
+  showView(view);
+}
+
+document.getElementById("openCommand").onclick=()=>{
+  document.getElementById("command").classList.add("open");
+  document.getElementById("commandInput").value="";
+  renderCommands();
+  setTimeout(()=>document.getElementById("commandInput").focus(),50);
+};
+
+document.getElementById("commandInput").oninput=e=>renderCommands(e.target.value);
+
+document.getElementById("command").onclick=e=>{
+  if(e.target===document.getElementById("command"))
+    document.getElementById("command").classList.remove("open");
+};
 
 document.addEventListener("keydown",e=>{
-
- if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){
-  e.preventDefault();
-  openCommand();
- }
-
- if(e.key==="Escape"){
-  document.querySelectorAll(".modal-bg.show").forEach(m=>m.classList.remove("show"));
- }
-
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){
+    e.preventDefault();
+    document.getElementById("openCommand").click();
+  }
+  if(e.key==="Escape"){
+    document.getElementById("command").classList.remove("open");
+    document.getElementById("modalBg").classList.remove("open");
+  }
 });
 
-/* -----------------------------
-   EXPORT
------------------------------ */
+/* ================= NOTIFICATIONS ================= */
 
-function exportData(){
+document.getElementById("notifyBtn").onclick=()=>{
+  openDetail("Notifications",`
+    <div class="activity">
+      <div class="activity-item">
+        <div class="activity-icon">!</div>
+        <div><strong>Invoice INV-1047 is overdue</strong><small>Needs attention</small></div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon">↗</div>
+        <div><strong>Atlas Group is in negotiation</strong><small>Potential $34,000 deal</small></div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon">✓</div>
+        <div><strong>3 tasks are due soon</strong><small>Review your execution queue</small></div>
+      </div>
+    </div>
+  `);
+};
 
- const blob=new Blob(
-  [JSON.stringify(data,null,2)],
-  {type:"application/json"}
- );
-
- const url=URL.createObjectURL(blob);
-
- const a=document.createElement("a");
- a.href=url;
- a.download="vanta-workspace.json";
- a.click();
-
- URL.revokeObjectURL(url);
-
- showToast("Workspace exported");
-}
-
-/* -----------------------------
-   RESET
------------------------------ */
-
-function resetData(){
-
- if(!confirm("Reset all demo data?"))return;
-
- data=JSON.parse(JSON.stringify(defaultData));
- save();
-
- renderClients();
- renderProjects();
- renderPipeline();
- renderTasks();
- renderInvoices();
- renderActivity();
-
- showToast("Demo workspace reset");
-}
-
-/* -----------------------------
-   THEME
------------------------------ */
-
-let light=false;
+/* ================= THEME ================= */
 
 function toggleTheme(){
+  document.body.classList.toggle("light");
+  const light=document.body.classList.contains("light");
 
- light=!light;
-
- if(light){
-
-  document.documentElement.style.setProperty("--bg","#eef1f4");
-  document.documentElement.style.setProperty("--panel","#fff");
-  document.documentElement.style.setProperty("--panel2","#f7f8fa");
-  document.documentElement.style.setProperty("--text","#101318");
-  document.documentElement.style.setProperty("--muted","#68717d");
-  document.documentElement.style.setProperty("--line","rgba(0,0,0,.08)");
-
-  document.body.style.background="#eef1f4";
-
-  showToast("Light workspace enabled");
-
- }else{
-
-  document.documentElement.style.setProperty("--bg","#07080b");
-  document.documentElement.style.setProperty("--panel","#0d1015");
-  document.documentElement.style.setProperty("--panel2","#11151c");
-  document.documentElement.style.setProperty("--text","#f5f7fa");
-  document.documentElement.style.setProperty("--muted","#7e8795");
-  document.documentElement.style.setProperty("--line","rgba(255,255,255,.08)");
-
-  document.body.style.background="#07080b";
-
-  showToast("Dark workspace enabled");
- }
-}
-
-/* -----------------------------
-   HELPERS
------------------------------ */
-
-function initials(name){
- return name.split(" ").map(x=>x[0]).slice(0,2).join("").toUpperCase();
-}
-
-function money(value){
-
- if(value>=100000){
-  return "₹"+(value/100000).toFixed(value%100000===0?0:1)+"L";
- }
-
- return "₹"+Number(value).toLocaleString("en-IN");
-}
-
-/* -----------------------------
-   CHARTS
------------------------------ */
-
-function makeCharts(){
-
- const common={
-  responsive:true,
-  maintainAspectRatio:false,
-  plugins:{
-   legend:{display:false}
-  },
-  scales:{
-   x:{
-    grid:{color:"rgba(255,255,255,.04)"},
-    ticks:{color:"#5f6874",font:{size:9}}
-   },
-   y:{
-    grid:{color:"rgba(255,255,255,.04)"},
-    ticks:{
-     color:"#5f6874",
-     font:{size:9},
-     callback:v=>"₹"+v+"k"
-    }
-   }
+  if(light){
+    document.documentElement.style.setProperty("--bg","#eef1f7");
+    document.documentElement.style.setProperty("--panel","#fff");
+    document.documentElement.style.setProperty("--panel2","#f8f9fc");
+    document.documentElement.style.setProperty("--text","#11131a");
+    document.documentElement.style.setProperty("--muted","#626a78");
+    document.body.style.background="#eef1f7";
+  }else{
+    document.documentElement.style.setProperty("--bg","#050609");
+    document.documentElement.style.setProperty("--panel","#0b0d12");
+    document.documentElement.style.setProperty("--panel2","#10131a");
+    document.documentElement.style.setProperty("--text","#f4f6fb");
+    document.documentElement.style.setProperty("--muted","#8c93a3");
+    document.body.style.background="";
   }
- };
+  toast("Appearance changed");
+}
+document.getElementById("themeBtn").onclick=toggleTheme;
 
- new Chart(
-  document.getElementById("revenueChart"),
-  {
-   type:"line",
-   data:{
-    labels:["Mar","Apr","May","Jun","Jul","Aug"],
-    datasets:[{
-     data:[310,420,380,560,710,842],
-     borderColor:"#9cff3b",
-     backgroundColor:"rgba(156,255,59,.07)",
-     fill:true,
-     tension:.4,
-     pointRadius:0,
-     borderWidth:2
-    }]
-   },
-   options:common
-  }
- );
+/* ================= DATA ================= */
 
- new Chart(
-  document.getElementById("analyticsChart"),
-  {
-   type:"line",
-   data:{
-    labels:["Mar","Apr","May","Jun","Jul","Aug","Sep"],
-    datasets:[
-     {
-      data:[310,420,380,560,710,842,980],
-      borderColor:"#9cff3b",
-      tension:.4,
-      pointRadius:0,
-      borderWidth:2
-     },
-     {
-      data:[280,350,430,490,580,690,780],
-      borderColor:"#66d8ff",
-      tension:.4,
-      pointRadius:0,
-      borderWidth:2,
-      borderDash:[5,5]
-     }
-    ]
-   },
-   options:common
-  }
- );
+function exportData(){
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="vantera-workspace.json";
+  a.click();
+  URL.revokeObjectURL(url);
+  toast("Export complete","Workspace JSON downloaded.");
 }
 
-/* -----------------------------
-   INIT
------------------------------ */
+function resetDemo(){
+  if(!confirm("Reset the complete VANTERA demo data?"))return;
+  data=structuredClone(defaultData);
+  save();refreshAll();
+  toast("Workspace reset","Demo data restored.");
+}
 
-renderClients();
-renderProjects();
-renderPipeline();
-renderTasks();
-renderInvoices();
-renderActivity();
+function refreshAll(){
+  renderDashboard();
+  renderClients();
+  renderProjects();
+  renderLeads();
+  renderTasks();
+  renderInvoices();
+  renderProposals();
+  renderCalendar();
+  renderAnalytics();
+  renderActivity();
+}
 
-setTimeout(makeCharts,100);
+/* ================= REAL THREE.JS WEBGL ================= */
 
-setInterval(()=>{
- const el=document.querySelector(".eyebrow");
-},1000);
+let scene,camera,renderer,core,particles,mouseX=0,mouseY=0;
+const nodes=[];
 
+function init3D(){
+
+  const container=document.getElementById("hero3d");
+
+  scene=new THREE.Scene();
+
+  camera=new THREE.PerspectiveCamera(
+    45,
+    container.clientWidth/container.clientHeight,
+    .1,
+    100
+  );
+  camera.position.z=6;
+
+  renderer=new THREE.WebGLRenderer({
+    antialias:true,
+    alpha:true,
+    powerPreference:"high-performance"
+  });
+
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  renderer.setSize(container.clientWidth,container.clientHeight);
+  renderer.setClearColor(0x000000,0);
+  container.appendChild(renderer.domElement);
+
+  /* core sphere */
+  const geo=new THREE.IcosahedronGeometry(1.15,4);
+
+  const mat=new THREE.MeshStandardMaterial({
+    color:0x887cff,
+    emissive:0x241c68,
+    emissiveIntensity:1.8,
+    metalness:.7,
+    roughness:.22,
+    wireframe:false
+  });
+
+  core=new THREE.Mesh(geo,mat);
+  scene.add(core);
+
+  /* wireframe shell */
+  const wireGeo=new THREE.IcosahedronGeometry(1.38,2);
+  const wireMat=new THREE.MeshBasicMaterial({
+    color:0x45d9ff,
+    wireframe:true,
+    transparent:true,
+    opacity:.22
+  });
+
+  const wire=new THREE.Mesh(wireGeo,wireMat);
+  core.add(wire);
+
+  /* rings */
+  for(let i=0;i<3;i++){
+    const rg=new THREE.TorusGeometry(1.55+i*.18,.008,12,120);
+    const rm=new THREE.MeshBasicMaterial({
+      color:i%2?0x45d9ff:0x887cff,
+      transparent:true,
+      opacity:.55
+    });
+    const ring=new THREE.Mesh(rg,rm);
+    ring.rotation.x=Math.random()*Math.PI;
+    ring.rotation.y=Math.random()*Math.PI;
+    core.add(ring);
+  }
+
+  /* nodes */
+  for(let i=0;i<18;i++){
+    const angle=(i/18)*Math.PI*2;
+    const radius=2.0+Math.random()*.65;
+    const y=(Math.random()-.5)*2.5;
+
+    const ng=new THREE.SphereGeometry(.035+Math.random()*.035,8,8);
+    const nm=new THREE.MeshBasicMaterial({
+      color:i%2?0x45d9ff:0x9b8cff
+    });
+
+    const node=new THREE.Mesh(ng,nm);
+    node.position.set(
+      Math.cos(angle)*radius,
+      y,
+      Math.sin(angle)*radius
+    );
+
+    scene.add(node);
+    nodes.push(node);
+
+    /* connection */
+    const points=[
+      new THREE.Vector3(0,0,0),
+      node.position.clone()
+    ];
+
+    const lg=new THREE.BufferGeometry().setFromPoints(points);
+    const lm=new THREE.LineBasicMaterial({
+      color:0x887cff,
+      transparent:true,
+      opacity:.13
+    });
+
+    scene.add(new THREE.Line(lg,lm));
+  }
+
+  /* particles */
+  const count=900;
+  const positions=new Float32Array(count*3);
+
+  for(let i=0;i<count*3;i++){
+    positions[i]=(Math.random()-.5)*12;
+  }
+
+  const pg=new THREE.BufferGeometry();
+  pg.setAttribute("position",new THREE.BufferAttribute(positions,3));
+
+  const pm=new THREE.PointsMaterial({
+    color:0x9a91ff,
+    size:.012,
+    transparent:true,
+    opacity:.55
+  });
+
+  particles=new THREE.Points(pg,pm);
+  scene.add(particles);
+
+  /* lights */
+  const ambient=new THREE.AmbientLight(0x8078ff,1.8);
+  scene.add(ambient);
+
+  const light=new THREE.PointLight(0x45d9ff,18,10);
+  light.position.set(3,2,4);
+  scene.add(light);
+
+  const light2=new THREE.PointLight(0x8b7cff,15,8);
+  light2.position.set(-3,-2,2);
+  scene.add(light2);
+
+  container.addEventListener("pointermove",e=>{
+    const r=container.getBoundingClientRect();
+    mouseX=((e.clientX-r.left)/r.width-.5);
+    mouseY=((e.clientY-r.top)/r.height-.5);
+  });
+
+  window.addEventListener("resize",resize3D);
+
+  animate3D();
+}
+
+function resize3D(){
+  const container=document.getElementById("hero3d");
+  if(!renderer)return;
+  camera.aspect=container.clientWidth/container.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(container.clientWidth,container.clientHeight);
+}
+
+function animate3D(){
+  requestAnimationFrame(animate3D);
+
+  if(core){
+    core.rotation.y+=.0025;
+    core.rotation.x+=.0012;
+
+    core.rotation.y+=(mouseX*.35-core.rotation.y)*.015;
+    core.rotation.x+=(mouseY*.25-core.rotation.x)*.015;
+  }
+
+  if(particles){
+    particles.rotation.y+=.00035;
+    particles.rotation.x+=.00012;
+  }
+
+  nodes.forEach((n,i)=>{
+    n.position.y+=Math.sin(Date.now()*.001+i)*.00035;
+  });
+
+  renderer.render(scene,camera);
+}
+
+/* ================= BOOT ================= */
+
+window.addEventListener("load",()=>{
+  setTimeout(()=>{
+    document.getElementById("boot").style.opacity="0";
+    setTimeout(()=>{
+      document.getElementById("boot").remove();
+      document.getElementById("app").style.display="block";
+      init3D();
+      refreshAll();
+    },700);
+  },1000);
+});
 </script>
 
 </body>
